@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Remix Botlane Site Architect",
+  "description": "A specialized tool for reimagining botlane.io with cutting-edge Framer designs and enhanced user conversion workflows.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
