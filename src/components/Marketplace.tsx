@@ -5,9 +5,10 @@ import { CATEGORIES, FEATURED_SYSTEMS, LIBRARY } from '../data/systemsData';
 
 interface MarketplaceProps {
   onSystemSelect: (systemId: string) => void;
+  onOpenBooking?: () => void;
 }
 
-export default function Marketplace({ onSystemSelect }: MarketplaceProps) {
+export default function Marketplace({ onSystemSelect, onOpenBooking }: MarketplaceProps) {
   const [activeCategory, setActiveCategory] = useState("All Systems");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -34,11 +35,21 @@ export default function Marketplace({ onSystemSelect }: MarketplaceProps) {
             Our Systems
           </span>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-[var(--color-ink)] leading-[1.1] mb-6">
-            Plug-and-play AI systems for technical businesses.
+            The systems behind the engagement.
           </h1>
           <p className="text-lg text-[var(--color-ink-muted)] leading-relaxed max-w-2xl mb-8">
-            Ready-to-deploy automations that help DevOps consultancies, MSPs, and engineering teams sell, deliver, and operate more efficiently.
+            Four consultancies work with me directly, and every one of these systems is included in that engagement. The roster is capped. This is how everyone else gets the machinery without the retainer.
           </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-[var(--color-ink-muted)]">
+            <span className="inline-flex items-center gap-2">
+              <Check className="size-3.5 text-[var(--color-ink)]" />
+              Included with the retainer
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <Check className="size-3.5 text-[var(--color-ink)]" />
+              Or bought individually
+            </span>
+          </div>
         </motion.div>
       </section>
 
@@ -167,7 +178,7 @@ export default function Marketplace({ onSystemSelect }: MarketplaceProps) {
       <section className="px-5 md:px-8 max-w-[1180px] mx-auto mb-32">
         <div className="mb-8">
           <h2 className="text-2xl font-medium tracking-tight text-[var(--color-ink)] mb-2">Technical Provisioning</h2>
-          <p className="text-sm text-[var(--color-ink-muted)]">What you actually receive when acquiring a system.</p>
+          <p className="text-sm text-[var(--color-ink-muted)]">What you actually receive when acquiring a system. Retainer clients receive all of it, for every system, as part of the engagement.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(200px,auto)]">
@@ -295,18 +306,21 @@ export default function Marketplace({ onSystemSelect }: MarketplaceProps) {
           </div>
           
           <div className="max-w-2xl relative z-10">
-            <span className="eyebrow text-[var(--color-ink-invert-muted)] mb-4 block">Multi-Tenant Deployment</span>
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-6">Buy once. Adapt. Deploy across your clients.</h2>
-            <p className="text-lg text-[var(--color-ink-invert-muted)] leading-relaxed mb-10">
-              Consultancies can purchase our 'Client-Deployable' tier systems and implement them into their own clients' infrastructures as high-margin, value-add services.
+            <span className="eyebrow text-[var(--color-ink-invert-muted)] mb-4 block">Run by you, or run for you</span>
+            <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-6">Would you rather not run any of it?</h2>
+            <p className="text-lg text-[var(--color-ink-invert-muted)] leading-relaxed mb-6">
+              Buying a system means you deploy it, adapt it, and maintain it. The retainer means I do all of that, plus the domains, the signal research, and the sending &mdash; and every system on this page comes with it.
             </p>
-            
+            <p className="text-[15px] text-[var(--color-ink-invert-muted)] leading-relaxed mb-10">
+              Four consultancies at a time, so no two clients ever chase the same opening. Slots open as engagements end.
+            </p>
+
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <button className="w-full sm:w-auto h-12 px-6 rounded-[var(--radius-control)] bg-white text-[var(--color-invert)] font-medium hover:bg-[var(--color-page)] transition-colors flex items-center justify-center gap-2">
-                Talk to Engineering <ArrowRight className="w-4 h-4" />
-              </button>
-              <button className="w-full sm:w-auto h-12 px-6 rounded-[var(--radius-control)] bg-transparent border border-[var(--color-line-invert)] text-white font-medium hover:bg-white/5 transition-colors flex items-center justify-center">
-                Read Documentation
+              <button
+                onClick={onOpenBooking}
+                className="w-full sm:w-auto h-12 px-6 rounded-[var(--radius-control)] bg-white text-[var(--color-invert)] font-medium hover:bg-[var(--color-page)] transition-colors flex items-center justify-center gap-2"
+              >
+                Check slot availability <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>

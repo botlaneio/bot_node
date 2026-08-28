@@ -1,0 +1,91 @@
+import { json, str, isEmail } from './_shared';
+import { SYSTEM_FULFILMENT, isSellable } from './_fulfilment';
+
+export const config = { runtime: 'edge' };
+
+/**
+ * Creates a Stripe Checkout Session for one system.
+ * Refuses if SYSTEMS_LIVE is not 'true', or if the system has no configured
+ * price and repo — better a clear error than money taken for something that
+ * cannot be delivered.
+ */
+export default async function handler(req: Request): Promise<Response> {
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
+  if (process.env.SYSTEMS_LIVE !== 'true') {
+    return json({ error: 'Systems are not on sale yet.' }, 403);
+  }
+
+  const secret = process.env.STRIPE_SECRET_KEY;
+  if (!secret) {
+    console.error('checkout: STRIPE_SECRET_KEY missing');
+    return json({ error: 'Checkout is not configured.' }, 500);
+  }
+
+  let body: Record<string, unknown>;
+  try {
+    body = (await req.json()) as Record<string, unknown>;
+  } catch {
+    return json({ error: 'Invalid request.' }, 400);
+  }
+
+  const systemId = str(body.systemId, 20).toUpperCase();
+  const systemName = str(body.systemName, 160);
+
+  if (!isSellable(systemId)) {
+    return json({ error: 'This system is not available for purchase yet.' }, 400);
+  }
+
+  const { stripePriceId } = SYSTEM_FULFILMENT[systemId];
+  const origin = req.headers.get('origin') || process.env.SITE_URL || '';
+  if (!origin) {
+    console.error('checkout: no origin and no SITE_URL');
+    return json({ error: 'Checkout is not configured.' }, 500);
+  }
+
+  // Stripe's API takes form-encoded bodies, not JSON.
+  const form = new URLSearchParams();
+  form.set('mode', 'payment');
+  form.set('line_items[0][price]', stripePriceId);
+  form.set('line_items[0][quantity]', '1');
+  form.set('success_url', `${origin}/systems/${systemId.toLowerCase()}/complete?session_id={CHECKOUT_SESSION_ID}`);
+  form.set('cancel_url', `${origin}/systems/${systemId.toLowerCase()}`);
+  form.set('client_reference_id', systemId);
+  form.set('metadata[system_id]', systemId);
+  form.set('metadata[system_name]', systemName);
+  form.set('payment_intent_data[metadata][system_id]', systemId);
+
+  // Collected at checkout so the webhook can grant repo access immediately.
+  form.set('custom_fields[0][key]', 'github_username');
+  form.set('custom_fields[0][label][type]', 'custom');
+  form.set('custom_fields[0][label][custom]', 'GitHub username');
+  form.set('custom_fields[0][type]', 'text');
+  form.set('custom_fields[0][text][minimum_length]', '1');
+  form.set('custom_fields[0][text][maximum_length]', '39');
+
+  const email = str(body.email, 254);
+  if (email && isEmail(email)) form.set('customer_email', email);
+
+  try {
+    const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${secret}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: form.toString(),
+    });
+
+    const data = (await res.json()) as { url?: string; error?: { message?: string } };
+
+    if (!res.ok || !data.url) {
+      console.error('checkout: stripe rejected', res.status, data?.error?.message);
+      return json({ error: 'Could not start checkout. Please try again.' }, 502);
+    }
+
+    return json({ url: data.url }, 200);
+  } catch (err) {
+    console.error('checkout: stripe threw', err);
+    return json({ error: 'Could not start checkout. Please try again.' }, 502);
+  }
+}

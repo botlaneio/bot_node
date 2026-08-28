@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, Loader2, AlertCircle } from 'lucide-react';
 import { BotlaneLogo } from './BotlaneLogo';
 
 interface MinimalFooterProps {
@@ -8,14 +8,39 @@ interface MinimalFooterProps {
 
 export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) => {
   const [email, setEmail] = useState('');
+  const [targetMarket, setTargetMarket] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-    setSubmitted(true);
-    const body = encodeURIComponent(`My email: ${email}\n\nTarget market criteria:\n- Cloud: AWS / GCP / Azure\n- Stack: Kubernetes, Terraform\n- Region: North America / EU`);
-    window.location.href = `mailto:sales@botlane.io?subject=${encodeURIComponent('Send me 40 companies')}&body=${body}`;
+    if (!email || submitting) return;
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/list-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, targetMarket, company: honeypot }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data?.error || 'Something went wrong. Please email sales@botlane.io.');
+        return;
+      }
+
+      setSubmitted(true);
+    } catch {
+      setError('Could not reach the server. Please email sales@botlane.io.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -47,26 +72,71 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                 {submitted ? (
                   <div className="flex items-center gap-2.5 p-4 rounded-2xl bg-white/5 border border-white/10 text-sm text-white/90">
                     <Check className="w-4 h-4 text-emerald-400" />
-                    <span>Request composed! Check your email client.</span>
+                    <span>Got it. The list is on its way to {email}.</span>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="relative flex w-full max-w-sm items-center group">
-                    <label htmlFor="subscribe-email" className="sr-only">Your email address</label>
+                  <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-2.5">
+                    {/* Honeypot: hidden from users, catches naive bots. */}
+                    <div className="absolute w-px h-px overflow-hidden -left-full" aria-hidden="true">
+                      <label htmlFor="footer-company-hp">Company (leave blank)</label>
+                      <input
+                        id="footer-company-hp"
+                        type="text"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={honeypot}
+                        onChange={(e) => setHoneypot(e.target.value)}
+                      />
+                    </div>
+
+                    <label htmlFor="target-market" className="sr-only">Your target market</label>
                     <input
-                      id="subscribe-email"
-                      type="email"
-                      required
-                      placeholder="you@consultancy.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full h-12 rounded-full border border-white/15 bg-white/5 pl-5 pr-[110px] text-sm text-white placeholder:text-white/40 outline-none transition-all focus:border-white/40 focus:bg-white/10"
+                      id="target-market"
+                      type="text"
+                      disabled={submitting}
+                      placeholder="Target market — e.g. AWS / EKS, US Series B"
+                      value={targetMarket}
+                      onChange={(e) => setTargetMarket(e.target.value)}
+                      className="w-full h-12 rounded-full border border-white/15 bg-white/5 px-5 text-sm text-white placeholder:text-white/40 outline-none transition-all focus:border-white/40 focus:bg-white/10 disabled:opacity-60"
                     />
-                    <button
-                      type="submit"
-                      className="absolute right-1 top-1 bottom-1 px-5 rounded-full bg-white text-[13px] font-medium text-black transition-transform hover:scale-[0.97] active:scale-[0.95]"
-                    >
-                      Subscribe
-                    </button>
+
+                    <div className="relative flex w-full items-center group">
+                      <label htmlFor="subscribe-email" className="sr-only">Your email address</label>
+                      <input
+                        id="subscribe-email"
+                        type="email"
+                        required
+                        disabled={submitting}
+                        placeholder="you@consultancy.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full h-12 rounded-full border border-white/15 bg-white/5 pl-5 pr-[130px] text-sm text-white placeholder:text-white/40 outline-none transition-all focus:border-white/40 focus:bg-white/10 disabled:opacity-60"
+                      />
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="absolute right-1 top-1 bottom-1 px-5 rounded-full bg-white text-[13px] font-medium text-black transition-transform hover:scale-[0.97] active:scale-[0.95] disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-1.5"
+                      >
+                        {submitting ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            Sending
+                          </>
+                        ) : (
+                          'Send the list'
+                        )}
+                      </button>
+                    </div>
+
+                    {error && (
+                      <div
+                        role="alert"
+                        className="flex items-start gap-2 px-4 py-3 rounded-2xl bg-red-500/10 border border-red-500/25 text-[13px] text-red-200"
+                      >
+                        <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                        <span className="leading-relaxed">{error}</span>
+                      </div>
+                    )}
                   </form>
                 )}
               </div>
@@ -82,9 +152,9 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
               <div>
                 <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/40 mb-6">Platform</h3>
                 <ul className="flex flex-col gap-4">
-                  <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="#features">Features</a></li>
-                  <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="#how-it-works">How It Works</a></li>
-                  <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="#pricing">Pricing</a></li>
+                  <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="/#features">Features</a></li>
+                  <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="/#how-it-works">How It Works</a></li>
+                  <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="/#pricing">Pricing</a></li>
                   <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="#integrations">Integrations</a></li>
                   <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="#changelog">Changelog</a></li>
                 </ul>
@@ -107,7 +177,7 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                 <ul className="flex flex-col gap-4">
                   <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="#documentation">Documentation</a></li>
                   <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="#api">API Reference</a></li>
-                  <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="#faq">Knowledge Base</a></li>
+                  <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="/#faq">Knowledge Base</a></li>
                   <li><a className="text-[14px] text-white/70 transition-colors hover:text-white" href="#guides">Deployment Guides</a></li>
                 </ul>
               </div>

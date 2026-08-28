@@ -92,7 +92,7 @@ export const HOW_IT_WORKS_STEPS = [
     details: [
       'Your primary company domain is 100% insulated and protected from deliverability risk',
       'Full DNS authentication setup on dedicated Google Workspace or Microsoft 365 tenants',
-      '3-week systematic warming cycle to achieve pristine 98%+ inbox placement rates'
+      '3-week systematic warming cycle before the first live message is sent'
     ]
   },
   {

@@ -1,6 +1,7 @@
+import { BuySystem } from './BuySystem';
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, Check, Terminal, Zap, Server, Code, FileJson, Layers, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Check, Terminal, Zap, Server, Code, FileJson, Layers } from 'lucide-react';
 import { FEATURED_SYSTEMS, LIBRARY, SystemData } from '../data/systemsData';
 
 interface SystemDetailProps {
@@ -126,15 +127,17 @@ export const SystemDetail: React.FC<SystemDetailProps> = ({ systemId, onBack, on
                 </div>
               </div>
               
-              <button 
+              <BuySystem
+                systemId={system.id}
+                systemName={system.name}
+                price={system.price}
+              />
+
+              <button
                 onClick={onOpenBooking}
-                className="w-full h-12 rounded-[var(--radius-control)] bg-[var(--color-invert)] text-[var(--color-ink-invert)] font-medium transition-colors hover:bg-[var(--color-invert-raised)] mb-4 flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-[var(--radius-control)] bg-transparent border border-[var(--color-line)] text-[var(--color-ink)] font-medium transition-colors hover:bg-[var(--color-sunken)] mb-8 flex items-center justify-center gap-2"
               >
-                Purchase System
-              </button>
-              
-              <button className="w-full h-12 rounded-[var(--radius-control)] bg-transparent border border-[var(--color-line)] text-[var(--color-ink)] font-medium transition-colors hover:bg-[var(--color-sunken)] mb-8 flex items-center justify-center gap-2">
-                View Documentation <ExternalLink className="w-4 h-4" />
+                Have it run for you instead
               </button>
 
               <div className="space-y-4 pt-6 border-t border-[var(--color-line)]">

@@ -37,7 +37,13 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({ value, suffix = "", p
     return unsubscribe;
   }, [springValue, prefix, suffix, decimals]);
 
-  return <span ref={ref} className="font-medium tracking-tight text-inherit">{prefix}0{suffix}</span>;
+  return (
+    <span ref={ref} className="font-medium tracking-tight text-inherit">
+      {prefix}
+      {decimals > 0 ? value.toFixed(decimals) : value}
+      {suffix}
+    </span>
+  );
 };
 
 export const MinimalStats: React.FC = () => {
@@ -61,31 +67,32 @@ export const MinimalStats: React.FC = () => {
     }
   };
 
+  // Every figure here is something Botlane controls and can be held to:
+  // a policy, a process step, or a targeting rule. None of them are
+  // performance claims, because there is no data to support one yet.
   const stats = [
     {
-      value: 15,
-      suffix: "%",
-      label: "Average Pipeline Increase",
-      description: "Directly attributed to high-intent stalled signals"
+      value: 4,
+      label: "Consultancies, maximum",
+      description: "The roster is capped so no two clients ever chase the same opening"
     },
     {
       value: 3,
-      suffix: "x",
-      label: "Higher Meeting Rate",
-      description: "Compared to standard cold outbound lists"
-    },
-    {
-      value: 40,
-      prefix: "+",
-      label: "Qualified Accounts",
-      description: "Delivered to your CRM every single month"
+      suffix: "wk",
+      label: "Warm-up before first send",
+      description: "Dedicated domains authenticated and aged before a single message goes out"
     },
     {
       value: 60,
       prefix: ">",
       suffix: "d",
-      label: "Stalled Duration",
-      description: "Average days open for the roles we target"
+      label: "Minimum signal age",
+      description: "How long a role must sit open before we treat it as real hiring distress"
+    },
+    {
+      value: 0,
+      label: "Emails from your domain",
+      description: "Outreach only ever leaves isolated secondary domains"
     }
   ];
 

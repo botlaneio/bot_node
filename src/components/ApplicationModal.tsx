@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, ArrowRight } from 'lucide-react';
+import { X, Check, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { BotlaneLogo } from './BotlaneLogo';
 
@@ -8,22 +8,26 @@ interface ApplicationModalProps {
   onClose: () => void;
 }
 
+const EMPTY_FORM = {
+  name: '',
+  email: '',
+  consultancyName: '',
+  website: '',
+  cloudFocus: 'AWS & Kubernetes',
+  currentTeamSize: '5-15 engineers',
+  notes: '',
+};
+
 export const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) => {
   const [submitted, setSubmitted] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    consultancyName: '',
-    website: '',
-    cloudFocus: 'AWS & Kubernetes',
-    currentTeamSize: '5-15 engineers',
-    notes: ''
-  });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState('');
+  const [formData, setFormData] = useState(EMPTY_FORM);
 
   if (!isOpen) return null;
 
   const triggerConfetti = () => {
-    // Subtle, elegant particle burst with brand-aligned tones
     confetti({
       particleCount: 50,
       spread: 60,
@@ -36,22 +40,51 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onCl
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    triggerConfetti();
+    if (submitting) return;
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, company: honeypot }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data?.error || 'Something went wrong. Please try again, or email sales@botlane.io.');
+        return;
+      }
+
+      setSubmitted(true);
+      triggerConfetti();
+    } catch {
+      setError('Could not reach the server. Please check your connection, or email sales@botlane.io.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleReset = () => {
     setSubmitted(false);
+    setError(null);
+    setFormData(EMPTY_FORM);
     onClose();
   };
 
+  const inputClass =
+    'w-full px-3 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:border-zinc-950 text-xs bg-[#FBFBFA] disabled:opacity-60';
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl border border-[#E5E5E0] shadow-2xl max-w-lg w-full p-6 sm:p-8 relative text-zinc-900 font-['Plus_Jakarta_Sans',sans-serif]">
+      <div className="bg-white rounded-2xl border border-[#E5E5E0] shadow-2xl max-w-lg w-full p-6 sm:p-8 relative text-zinc-900">
         <button
-          onClick={onClose}
+          onClick={submitted ? handleReset : onClose}
           className="absolute top-5 right-5 p-1.5 text-zinc-400 hover:text-zinc-900 rounded-lg hover:bg-zinc-100 transition-colors"
           aria-label="Close dialog"
         >
@@ -74,88 +107,150 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onCl
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+              {/* Honeypot: hidden from users, catches naive bots. */}
+              <div className="absolute w-px h-px overflow-hidden -left-full" aria-hidden="true">
+                <label htmlFor="company-website-hp">Company (leave blank)</label>
+                <input
+                  id="company-website-hp"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-zinc-700 font-medium mb-1">Your Name</label>
+                  <label htmlFor="app-name" className="block text-zinc-700 font-medium mb-1">Your Name</label>
                   <input
+                    id="app-name"
                     type="text"
                     required
+                    disabled={submitting}
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g. Alex Morgan"
-                    className="w-full px-3 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:border-zinc-950 text-xs bg-[#FBFBFA]"
+                    className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-700 font-medium mb-1">Work Email</label>
+                  <label htmlFor="app-email" className="block text-zinc-700 font-medium mb-1">Work Email</label>
                   <input
+                    id="app-email"
                     type="email"
                     required
+                    disabled={submitting}
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="alex@devopsconsultancy.com"
-                    className="w-full px-3 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:border-zinc-950 text-xs bg-[#FBFBFA]"
+                    className={inputClass}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-zinc-700 font-medium mb-1">Consultancy Name</label>
+                  <label htmlFor="app-consultancy" className="block text-zinc-700 font-medium mb-1">Consultancy Name</label>
                   <input
+                    id="app-consultancy"
                     type="text"
                     required
+                    disabled={submitting}
                     value={formData.consultancyName}
                     onChange={(e) => setFormData({ ...formData, consultancyName: e.target.value })}
                     placeholder="e.g. CloudArc Systems"
-                    className="w-full px-3 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:border-zinc-950 text-xs bg-[#FBFBFA]"
+                    className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-700 font-medium mb-1">Website URL</label>
+                  <label htmlFor="app-website" className="block text-zinc-700 font-medium mb-1">Website URL</label>
                   <input
+                    id="app-website"
                     type="url"
                     required
+                    disabled={submitting}
                     value={formData.website}
                     onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                     placeholder="https://cloudarc.io"
-                    className="w-full px-3 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:border-zinc-950 text-xs bg-[#FBFBFA]"
+                    className={inputClass}
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-zinc-700 font-medium mb-1">Primary Cloud & Stack Specialization</label>
-                <select
-                  value={formData.cloudFocus}
-                  onChange={(e) => setFormData({ ...formData, cloudFocus: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:border-zinc-950 text-xs bg-[#FBFBFA]"
-                >
-                  <option value="AWS & Kubernetes">AWS, Kubernetes (EKS), Terraform</option>
-                  <option value="GCP & Cloud Native">GCP, GKE, BigQuery, Observability</option>
-                  <option value="Azure & Enterprise Cloud">Azure, AKS, Enterprise Migrations</option>
-                  <option value="Multi-Cloud / SRE">Multi-Cloud, Site Reliability & Platform Eng</option>
-                </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="app-cloud" className="block text-zinc-700 font-medium mb-1">Primary Cloud &amp; Stack</label>
+                  <select
+                    id="app-cloud"
+                    disabled={submitting}
+                    value={formData.cloudFocus}
+                    onChange={(e) => setFormData({ ...formData, cloudFocus: e.target.value })}
+                    className={inputClass}
+                  >
+                    <option value="AWS & Kubernetes">AWS, Kubernetes (EKS), Terraform</option>
+                    <option value="GCP & Cloud Native">GCP, GKE, BigQuery, Observability</option>
+                    <option value="Azure & Enterprise Cloud">Azure, AKS, Enterprise Migrations</option>
+                    <option value="Multi-Cloud / SRE">Multi-Cloud, Site Reliability &amp; Platform Eng</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="app-team" className="block text-zinc-700 font-medium mb-1">Current Team Size</label>
+                  <select
+                    id="app-team"
+                    disabled={submitting}
+                    value={formData.currentTeamSize}
+                    onChange={(e) => setFormData({ ...formData, currentTeamSize: e.target.value })}
+                    className={inputClass}
+                  >
+                    <option value="Solo / independent">Solo / independent</option>
+                    <option value="2-4 engineers">2-4 engineers</option>
+                    <option value="5-15 engineers">5-15 engineers</option>
+                    <option value="16+ engineers">16+ engineers</option>
+                  </select>
+                </div>
               </div>
 
               <div>
-                <label className="block text-zinc-700 font-medium mb-1">Additional Context (Optional)</label>
+                <label htmlFor="app-notes" className="block text-zinc-700 font-medium mb-1">Additional Context (Optional)</label>
                 <textarea
+                  id="app-notes"
                   rows={2}
+                  disabled={submitting}
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   placeholder="Target geographies, specific exclusions, or project minimums..."
-                  className="w-full px-3 py-2 rounded-lg border border-zinc-200 focus:outline-none focus:border-zinc-950 text-xs bg-[#FBFBFA]"
+                  className={inputClass}
                 />
               </div>
+
+              {error && (
+                <div
+                  role="alert"
+                  className="flex items-start gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-800"
+                >
+                  <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                  <span className="leading-relaxed">{error}</span>
+                </div>
+              )}
 
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-lg bg-zinc-950 text-white font-medium text-xs hover:bg-zinc-800 transition-all flex items-center justify-center gap-2"
+                  disabled={submitting}
+                  className="w-full py-3 rounded-lg bg-zinc-950 text-white font-medium text-xs hover:bg-zinc-800 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  Submit inquiry for slot review
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Sending
+                    </>
+                  ) : (
+                    <>
+                      Submit inquiry for slot review
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -169,7 +264,8 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onCl
               Inquiry received
             </h3>
             <p className="text-xs text-zinc-600 max-w-sm mx-auto leading-relaxed">
-              Thanks {formData.name}. We will review {formData.consultancyName} for territory compatibility and reply to <strong>{formData.email}</strong> within 24 hours.
+              Thanks {formData.name}. We will review {formData.consultancyName} for territory
+              compatibility and reply to <strong>{formData.email}</strong> within 24 hours.
             </p>
             <div className="pt-4">
               <button

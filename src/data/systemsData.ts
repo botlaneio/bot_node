@@ -203,3 +203,12 @@ export const LIBRARY: SystemData[] = [
     status: "Beta"
   }
 ];
+
+/**
+ * Every system in one list, for route lookups by id.
+ * FEATURED_SYSTEMS and LIBRARY may overlap, so duplicates are removed.
+ */
+export const ALL_SYSTEMS: SystemData[] = [
+  ...FEATURED_SYSTEMS,
+  ...LIBRARY.filter((sys) => !FEATURED_SYSTEMS.some((f) => f.id === sys.id)),
+];

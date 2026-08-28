@@ -3,9 +3,10 @@ import { ArrowRight, Check } from 'lucide-react';
 
 interface MinimalPricingProps {
   onOpenBooking: () => void;
+  onViewSystems?: () => void;
 }
 
-export const MinimalPricing: React.FC<MinimalPricingProps> = ({ onOpenBooking }) => {
+export const MinimalPricing: React.FC<MinimalPricingProps> = ({ onOpenBooking, onViewSystems }) => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'quarterly'>('monthly');
 
   const plan =
@@ -165,7 +166,36 @@ export const MinimalPricing: React.FC<MinimalPricingProps> = ({ onOpenBooking })
                   Direct access to the person running it
                 </span>
               </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-[0.25rem] bg-[#0a0a0a] text-white">
+                  <Check className="w-3 h-3 stroke-[3]" />
+                </span>
+                <span className="text-sm leading-relaxed text-[#0d0d0d]">
+                  Every system in the library, included &mdash; deployed and maintained for you
+                </span>
+              </li>
             </ul>
+          </div>
+        </div>
+
+        {/* Bridge to the self-serve path for anyone the capped roster excludes */}
+        <div className="mt-10 rounded-[var(--radius-card)] border border-[#e3e3e0] bg-white p-6 md:p-8">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-xl">
+              <h3 className="text-[1.0625rem] font-medium tracking-[-0.01em] text-[#0d0d0d]">
+                Roster full, or not ready for a retainer?
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-[#6b6b68]">
+                The same systems are available individually, from $149. You deploy and maintain them
+                yourself instead of me running them for you.
+              </p>
+            </div>
+            <button
+              onClick={onViewSystems}
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-[var(--radius-control)] border border-[#0a0a0a] px-5 text-sm font-medium text-[#0d0d0d] transition-colors hover:bg-[#0a0a0a] hover:text-white"
+            >
+              Browse the systems <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>

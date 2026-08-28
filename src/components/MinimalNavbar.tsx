@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { BotlaneLogo } from './BotlaneLogo';
 
 interface MinimalNavbarProps {
   onOpenBooking: () => void;
-  currentView?: 'landing' | 'marketplace';
-  onNavigate?: (view: 'landing' | 'marketplace') => void;
 }
 
-export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking, currentView = 'landing', onNavigate }) => {
+export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const onSystems = pathname.startsWith('/systems');
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 15);
@@ -18,28 +21,26 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking, cur
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleNav = (e: React.MouseEvent, view: 'landing' | 'marketplace', href: string) => {
-    if (onNavigate) {
-      if (view === 'landing' && currentView === 'marketplace') {
-        e.preventDefault();
-        onNavigate('landing');
-        setTimeout(() => {
-          if (href !== '#') {
-            const el = document.querySelector(href);
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 100);
-      } else if (view === 'marketplace' && currentView !== 'marketplace') {
-        e.preventDefault();
-        onNavigate('marketplace');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else if (view === 'landing' && href === '#') {
-        e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
+  /**
+   * Section links live on the landing page. If we are already there, scroll.
+   * If not, route home with the hash so ScrollManager handles it on arrival.
+   */
+  const handleSection = (e: React.MouseEvent, hash: string) => {
+    e.preventDefault();
     setMobileOpen(false);
+
+    if (pathname === '/') {
+      const el = document.querySelector(hash);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate(`/${hash}`);
+    }
   };
+
+  const sectionClass = (active: boolean) =>
+    `text-sm font-medium transition-colors hover:text-[#0d0d0d] ${
+      active ? 'text-[#6b6b68]' : 'text-[#9a9a96]'
+    }`;
 
   return (
     <header
@@ -52,57 +53,59 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking, cur
       <div className="max-w-[1180px] mx-auto px-5 md:px-8">
         <nav aria-label="Primary" className="flex h-16 items-center justify-between gap-8">
           {/* Brand Logo */}
-          <a 
-            aria-label="Botlane home" 
-            href="#" 
-            onClick={(e) => handleNav(e, 'landing', '#')}
+          <Link
+            aria-label="Botlane home"
+            to="/"
+            onClick={() => setMobileOpen(false)}
             className="flex items-center gap-2 cursor-pointer"
           >
             <span className="inline-flex items-center gap-1.5 text-[#2c2c2a]">
               <BotlaneLogo size={20} theme="light" showSquircle={false} />
-              <span className="font-['Plus_Jakarta_Sans',sans-serif] text-sm font-bold tracking-tight leading-none">
+              <span className="text-sm font-bold tracking-tight leading-none">
                 Botlane
               </span>
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation Links */}
           <ul className="hidden items-center gap-8 md:flex">
             <li>
-              <a 
-                className={`text-sm font-medium transition-colors hover:text-[#0d0d0d] ${currentView === 'landing' ? 'text-[#6b6b68]' : 'text-[#9a9a96]'}`} 
-                href="#features"
-                onClick={(e) => handleNav(e, 'landing', '#features')}
+              <a
+                className={sectionClass(pathname === '/')}
+                href="/#features"
+                onClick={(e) => handleSection(e, '#features')}
               >
                 Features
               </a>
             </li>
             <li>
-              <a 
-                className={`text-sm font-medium transition-colors hover:text-[#0d0d0d] ${currentView === 'landing' ? 'text-[#6b6b68]' : 'text-[#9a9a96]'}`} 
-                href="#how-it-works"
-                onClick={(e) => handleNav(e, 'landing', '#how-it-works')}
+              <a
+                className={sectionClass(pathname === '/')}
+                href="/#how-it-works"
+                onClick={(e) => handleSection(e, '#how-it-works')}
               >
                 How It Works
               </a>
             </li>
             <li>
-              <a 
-                className={`text-sm font-medium transition-colors hover:text-[#0d0d0d] ${currentView === 'landing' ? 'text-[#6b6b68]' : 'text-[#9a9a96]'}`} 
-                href="#pricing"
-                onClick={(e) => handleNav(e, 'landing', '#pricing')}
+              <a
+                className={sectionClass(pathname === '/')}
+                href="/#pricing"
+                onClick={(e) => handleSection(e, '#pricing')}
               >
                 Pricing
               </a>
             </li>
             <li>
-              <a 
-                className={`text-sm font-medium transition-colors hover:text-[#0d0d0d] ${currentView === 'marketplace' ? 'text-[#0d0d0d]' : 'text-[#6b6b68]'}`}
-                href="#"
-                onClick={(e) => handleNav(e, 'marketplace', '#')}
+              <Link
+                className={`text-sm font-medium transition-colors hover:text-[#0d0d0d] ${
+                  onSystems ? 'text-[#0d0d0d]' : 'text-[#6b6b68]'
+                }`}
+                to="/systems"
+                aria-current={onSystems ? 'page' : undefined}
               >
                 Our Systems
-              </a>
+              </Link>
             </li>
           </ul>
 
@@ -135,32 +138,34 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking, cur
           <div className="max-w-[1180px] mx-auto px-5 flex flex-col py-2">
             <a
               className="text-sm font-medium border-b border-[#e3e3e0] py-4 text-[#6b6b68] hover:text-[#0d0d0d] transition-colors"
-              href="#features"
-              onClick={(e) => handleNav(e, 'landing', '#features')}
+              href="/#features"
+              onClick={(e) => handleSection(e, '#features')}
             >
               Features
             </a>
             <a
               className="text-sm font-medium border-b border-[#e3e3e0] py-4 text-[#6b6b68] hover:text-[#0d0d0d] transition-colors"
-              href="#how-it-works"
-              onClick={(e) => handleNav(e, 'landing', '#how-it-works')}
+              href="/#how-it-works"
+              onClick={(e) => handleSection(e, '#how-it-works')}
             >
               How It Works
             </a>
             <a
               className="text-sm font-medium border-b border-[#e3e3e0] py-4 text-[#6b6b68] hover:text-[#0d0d0d] transition-colors"
-              href="#pricing"
-              onClick={(e) => handleNav(e, 'landing', '#pricing')}
+              href="/#pricing"
+              onClick={(e) => handleSection(e, '#pricing')}
             >
               Pricing
             </a>
-            <a
-              className={`text-sm font-medium border-b border-[#e3e3e0] py-4 hover:text-[#0d0d0d] transition-colors ${currentView === 'marketplace' ? 'text-[#0d0d0d]' : 'text-[#6b6b68]'}`}
-              href="#"
-              onClick={(e) => handleNav(e, 'marketplace', '#')}
+            <Link
+              className={`text-sm font-medium border-b border-[#e3e3e0] py-4 hover:text-[#0d0d0d] transition-colors ${
+                onSystems ? 'text-[#0d0d0d]' : 'text-[#6b6b68]'
+              }`}
+              to="/systems"
+              onClick={() => setMobileOpen(false)}
             >
               Our Systems
-            </a>
+            </Link>
             <button
               type="button"
               onClick={() => {

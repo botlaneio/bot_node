@@ -150,7 +150,7 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
             className="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-50/50 px-3 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm backdrop-blur-sm"
           >
             <Activity className="size-3.5 text-emerald-600" />
-            142+ Roles Discovered
+            Public, dated hiring signals
           </motion.div>
           <motion.div 
             variants={{
@@ -160,7 +160,7 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
             className="flex items-center gap-2 rounded-full border border-[#e3e3e0] bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#0d0d0d] shadow-sm backdrop-blur-sm"
           >
             <BarChart3 className="size-3.5 text-[#6b6b68]" />
-            Avg. 3x Pipeline Lift
+            Weekly reporting
           </motion.div>
           <motion.div 
             variants={{
@@ -170,7 +170,7 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
             className="flex items-center gap-2 rounded-full border border-[#e3e3e0] bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#0d0d0d] shadow-sm backdrop-blur-sm"
           >
             <Target className="size-3.5 text-[#6b6b68]" />
-            High Intent Matches
+            Roles open 60+ days
           </motion.div>
         </motion.div>
 
