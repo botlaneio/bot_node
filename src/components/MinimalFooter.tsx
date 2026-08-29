@@ -14,6 +14,10 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
   const [error, setError] = useState<string | null>(null);
   const [honeypot, setHoneypot] = useState('');
 
+  // The target-market field only appears once a plausible email is entered,
+  // so the initial state is a single input rather than a two-field form.
+  const emailLooksValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || submitting) return;
@@ -70,15 +74,15 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                   Tell me your target market and I'll send forty companies.
                 </p>
                 {submitted ? (
-                  <div className="flex items-center gap-2.5 p-4 rounded-2xl bg-white/5 border border-white/10 text-sm text-white/90">
-                    <Check className="w-4 h-4 text-emerald-400" />
-                    <span>Got it. The list is on its way to {email}.</span>
+                  <div className="flex max-w-sm items-start gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-line-invert)] bg-white/[0.04] p-4 text-sm text-white/90">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-white" />
+                    <span className="leading-relaxed">Got it. The list is on its way to {email}.</span>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-2.5">
+                  <form onSubmit={handleSubmit} className="w-full max-w-sm">
                     {/* Honeypot with a meaningless name, so browser autofill
                         cannot trip it and discard a genuine submission. */}
-                    <div className="absolute w-px h-px overflow-hidden -left-full" aria-hidden="true">
+                    <div className="absolute -left-full h-px w-px overflow-hidden" aria-hidden="true">
                       <input
                         id="hp-xq7-footer"
                         name="hp-xq7-footer"
@@ -91,51 +95,66 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                       />
                     </div>
 
-                    <label htmlFor="target-market" className="sr-only">Your target market</label>
+                    <label htmlFor="subscribe-email" className="sr-only">Your email address</label>
                     <input
-                      id="target-market"
-                      type="text"
+                      id="subscribe-email"
+                      type="email"
+                      required
                       disabled={submitting}
-                      placeholder="Target market — e.g. AWS / EKS, US Series B"
-                      value={targetMarket}
-                      onChange={(e) => setTargetMarket(e.target.value)}
-                      className="w-full h-12 rounded-full border border-white/15 bg-white/5 px-5 text-sm text-white placeholder:text-white/40 outline-none transition-all focus:border-white/40 focus:bg-white/10 disabled:opacity-60"
+                      placeholder="you@consultancy.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="h-11 w-full rounded-[var(--radius-control)] border border-[var(--color-line-invert)] bg-white/[0.04] px-3.5 text-sm text-white outline-none transition-colors duration-200 placeholder:text-white/35 focus:border-white/30 focus:bg-white/[0.07] disabled:opacity-60"
                     />
 
-                    <div className="relative flex w-full items-center group">
-                      <label htmlFor="subscribe-email" className="sr-only">Your email address</label>
-                      <input
-                        id="subscribe-email"
-                        type="email"
-                        required
-                        disabled={submitting}
-                        placeholder="you@consultancy.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full h-12 rounded-full border border-white/15 bg-white/5 pl-5 pr-[130px] text-sm text-white placeholder:text-white/40 outline-none transition-all focus:border-white/40 focus:bg-white/10 disabled:opacity-60"
-                      />
-                      <button
-                        type="submit"
-                        disabled={submitting}
-                        className="absolute right-1 top-1 bottom-1 px-5 rounded-full bg-white text-[13px] font-medium text-black transition-transform hover:scale-[0.97] active:scale-[0.95] disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-1.5"
-                      >
-                        {submitting ? (
-                          <>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            Sending
-                          </>
-                        ) : (
-                          'Send the list'
-                        )}
-                      </button>
+                    {/* Revealed only once the email is plausible, so the form
+                        opens as a single field and earns the second one. */}
+                    <div
+                      className={`grid transition-all duration-300 ease-out ${
+                        emailLooksValid
+                          ? 'mt-2 grid-rows-[1fr] opacity-100'
+                          : 'grid-rows-[0fr] opacity-0'
+                      }`}
+                    >
+                      <div className="overflow-hidden">
+                        <label htmlFor="target-market" className="sr-only">Your target market</label>
+                        <input
+                          id="target-market"
+                          type="text"
+                          disabled={submitting}
+                          tabIndex={emailLooksValid ? 0 : -1}
+                          placeholder="Target market — optional"
+                          value={targetMarket}
+                          onChange={(e) => setTargetMarket(e.target.value)}
+                          className="h-11 w-full rounded-[var(--radius-control)] border border-[var(--color-line-invert)] bg-white/[0.04] px-3.5 text-sm text-white outline-none transition-colors duration-200 placeholder:text-white/35 focus:border-white/30 focus:bg-white/[0.07] disabled:opacity-60"
+                        />
+                      </div>
                     </div>
+
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="mt-2 inline-flex h-11 w-full items-center justify-center gap-2 rounded-[var(--radius-control)] bg-white text-sm font-medium text-[var(--color-invert)] shadow-[0_1px_2px_rgba(0,0,0,0.18)] transition-all duration-200 ease-out hover:bg-white/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      {submitting ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          Sending
+                        </>
+                      ) : (
+                        <>
+                          Send the list
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </>
+                      )}
+                    </button>
 
                     {error && (
                       <div
                         role="alert"
-                        className="flex items-start gap-2 px-4 py-3 rounded-2xl bg-red-500/10 border border-red-500/25 text-[13px] text-red-200"
+                        className="mt-2 flex items-start gap-2 rounded-[var(--radius-control)] border border-red-500/25 bg-red-500/10 px-3.5 py-3 text-[13px] text-red-200"
                       >
-                        <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                        <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                         <span className="leading-relaxed">{error}</span>
                       </div>
                     )}
