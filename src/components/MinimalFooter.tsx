@@ -25,7 +25,7 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
       const res = await fetch('/api/list-request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, targetMarket, company: honeypot }),
+        body: JSON.stringify({ email, targetMarket, honeypot }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -76,14 +76,16 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-2.5">
-                    {/* Honeypot: hidden from users, catches naive bots. */}
+                    {/* Honeypot with a meaningless name, so browser autofill
+                        cannot trip it and discard a genuine submission. */}
                     <div className="absolute w-px h-px overflow-hidden -left-full" aria-hidden="true">
-                      <label htmlFor="footer-company-hp">Company (leave blank)</label>
                       <input
-                        id="footer-company-hp"
+                        id="hp-xq7-footer"
+                        name="hp-xq7-footer"
                         type="text"
                         tabIndex={-1}
                         autoComplete="off"
+                        aria-hidden="true"
                         value={honeypot}
                         onChange={(e) => setHoneypot(e.target.value)}
                       />

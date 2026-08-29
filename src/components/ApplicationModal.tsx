@@ -51,7 +51,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onCl
       const res = await fetch('/api/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, company: honeypot }),
+        body: JSON.stringify({ ...formData, honeypot }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -108,13 +108,17 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onCl
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               {/* Honeypot: hidden from users, catches naive bots. */}
+              {/* Honeypot. The name is deliberately meaningless: fields named
+                  "company", "email" or similar get autofilled by browsers, which
+                  would silently discard a real submission. */}
               <div className="absolute w-px h-px overflow-hidden -left-full" aria-hidden="true">
-                <label htmlFor="company-website-hp">Company (leave blank)</label>
                 <input
-                  id="company-website-hp"
+                  id="hp-xq7"
+                  name="hp-xq7"
                   type="text"
                   tabIndex={-1}
                   autoComplete="off"
+                  aria-hidden="true"
                   value={honeypot}
                   onChange={(e) => setHoneypot(e.target.value)}
                 />

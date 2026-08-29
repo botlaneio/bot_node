@@ -19,8 +19,12 @@ export default async function handler(req: Request): Promise<Response> {
     return json({ error: 'Invalid request.' }, 400);
   }
 
-  // Honeypot. Return success so bots do not learn they were caught.
-  if (str(body.company, 200) !== '') return json({ ok: true }, 200);
+  // Honeypot. Return success so bots do not learn they were caught, but log
+  // it: a silent discard here is indistinguishable from a working form.
+  if (str(body.honeypot, 200) !== '') {
+    console.warn('honeypot triggered — submission discarded');
+    return json({ ok: true }, 200);
+  }
 
   const name = str(body.name, 120);
   const email = str(body.email, 254);

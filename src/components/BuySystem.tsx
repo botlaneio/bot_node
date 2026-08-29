@@ -55,7 +55,7 @@ export const BuySystem: React.FC<BuySystemProps> = ({ systemId, systemName, pric
       const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, systemId, systemName, company: honeypot }),
+        body: JSON.stringify({ email, systemId, systemName, honeypot }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -121,13 +121,15 @@ export const BuySystem: React.FC<BuySystemProps> = ({ systemId, systemName, pric
         <Lock className="w-3.5 h-3.5" /> Available soon
       </div>
       <form onSubmit={joinWaitlist} className="space-y-2">
+        {/* Honeypot with a meaningless name — see ApplicationModal. */}
         <div className="absolute w-px h-px overflow-hidden -left-full" aria-hidden="true">
-          <label htmlFor={`hp-${systemId}`}>Company (leave blank)</label>
           <input
-            id={`hp-${systemId}`}
+            id={`hp-xq7-${systemId}`}
+            name={`hp-xq7-${systemId}`}
             type="text"
             tabIndex={-1}
             autoComplete="off"
+            aria-hidden="true"
             value={honeypot}
             onChange={(e) => setHoneypot(e.target.value)}
           />
