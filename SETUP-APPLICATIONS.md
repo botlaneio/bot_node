@@ -213,3 +213,87 @@ to add that user as a read-only collaborator on the system's repo.
 
 Refunding in Stripe does **not** revoke repo access. Remove the collaborator
 manually. There is no automation for this and it would be a bad thing to guess at.
+
+---
+
+# Rate limiting the public endpoints
+
+`/api/apply`, `/api/list-request`, `/api/waitlist`, and `/api/checkout` are all
+unauthenticated POST endpoints. Until now nothing stopped a script from calling
+them in a loop — filling Supabase with junk, burning the Resend quota, and
+mail-bombing `NOTIFY_EMAIL`, since every accepted application sends you an email.
+
+The honeypot only ever caught naive bots. This is the actual ceiling.
+
+## 1. Run the migration
+
+Supabase → **SQL Editor** → paste [`supabase/rate-limits.sql`](supabase/rate-limits.sql)
+→ Run. It is idempotent, so re-running it later is safe and will not reset
+anyone's counter.
+
+That creates a `rate_limits` table and a `check_rate_limit` function. No new
+environment variables and no new vendor — it reuses the service role key that
+already talks to Supabase.
+
+**Nothing else works until this is run.** The limiter fails open (below), so
+until the function exists every request is allowed and each one writes a
+`rate limit check failed` line to the Vercel runtime logs.
+
+## 2. The limits
+
+Per caller, per hour, fixed window:
+
+| Endpoint | Limit | Why |
+|---|---|---|
+| `/api/apply` | 5 | Writes a row *and* emails you. Nobody applies for a slot five times an hour. |
+| `/api/list-request` | 5 | Same shape — a row plus an email. |
+| `/api/waitlist` | 10 | Looser: there are eight systems and signing up for several in one sitting is normal. |
+| `/api/checkout` | 10 | Room to retry a declined card or buy more than one system. |
+
+Over the limit returns **429** with a `Retry-After` header and a plain error the
+forms already know how to display — they render `data.error` on any non-OK
+response, so no frontend change was needed.
+
+To change a limit, edit the two numbers in the `rateLimit(...)` call in that
+handler. Nothing else needs to move.
+
+## 3. Two decisions worth knowing about
+
+**It fails open.** If Supabase is unreachable, requests are allowed through and
+the failure goes to the runtime logs. An outage that silently turned the site
+into one that refuses every genuine inquiry would cost more than a briefly
+missing ceiling. This is the same trade already made for `notify`.
+
+**Counting happens in Postgres, not in the function.** Edge isolates are
+per-region and short-lived, so an in-process counter would reset constantly and
+never see requests handled by a sibling isolate — protection in appearance only.
+`check_rate_limit` uses `INSERT ... ON CONFLICT DO UPDATE ... RETURNING`, which
+takes a row lock, so two simultaneous requests cannot both read the same count
+and both decide they are under the limit.
+
+Note this costs one PostgREST round-trip per request. At this site's volume that
+is not worth optimising.
+
+## 4. Privacy and housekeeping
+
+The caller's IP is SHA-256 hashed before it is stored, so `rate_limits` holds no
+raw addresses — only an opaque key. The table is RLS-on with zero policies like
+the others, and `check_rate_limit` has `EXECUTE` revoked from `anon` so nobody
+can call it directly and poison a bucket for a real visitor.
+
+The table gains one row per (endpoint, caller) and grows slowly. A
+`cleanup_rate_limits()` function is included if you want to schedule it with
+pg_cron; at a few thousand rows a year it is tidiness, not necessity.
+
+## 5. Verify
+
+Against a preview deployment, submit the footer form six times in a row. The
+first five succeed; the sixth returns a red error in the form rather than a
+false success. Then check:
+
+- Supabase → `rate_limits` — a row whose `hits` reads 6
+- Supabase → `list_requests` — only five new rows
+- Your inbox — five alerts, not six
+
+The window is an hour, so either wait it out or delete the row to reset while
+testing.

@@ -1,4 +1,12 @@
-import { json, str, isEmail, insertRow, notify } from './_shared';
+import {
+  json,
+  str,
+  isEmail,
+  insertRow,
+  notify,
+  rateLimit,
+  tooManyRequests,
+} from './_shared';
 
 export const config = { runtime: 'edge' };
 
@@ -11,6 +19,16 @@ const CLOUD_FOCUS_OPTIONS = [
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
+  // Checked before the body is even parsed, so a flood cannot reach the JSON
+  // parse, the insert, or the notification email. Nobody applies for a client
+  // slot five times in an hour; anything at that rate is not a prospect.
+  if (!(await rateLimit('apply', req, 5, 3600))) {
+    return tooManyRequests(
+      3600,
+      'Too many inquiries from this connection. Please wait an hour, or email sales@botlane.io.'
+    );
+  }
 
   let body: Record<string, unknown>;
   try {
