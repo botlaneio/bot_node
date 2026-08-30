@@ -3,6 +3,39 @@ import { SYSTEM_FULFILMENT, isSellable } from './_fulfilment';
 
 export const config = { runtime: 'edge' };
 
+const stripSlash = (s: string): string => s.replace(/\/+$/, '');
+
+/**
+ * The origin Stripe's redirect URLs are built from.
+ *
+ * The Origin header is set by the caller, not by us. Trusting it meant anyone
+ * could POST here with `Origin: https://evil.com` and be handed a genuine
+ * Stripe session whose success_url pointed at their own page — a payment flow
+ * that looks entirely legitimate right up to the moment it hands the buyer to
+ * an attacker. So it is honoured only when it matches somewhere we serve.
+ *
+ * VERCEL_URL is the current deployment's own hostname, which keeps preview
+ * deployments working without hardcoding their generated URLs.
+ *
+ * An unrecognised origin is not an error: it falls back to the canonical site
+ * rather than refusing the sale. The redirect is safe either way, and a buyer
+ * should not lose a purchase because their browser sent something unexpected.
+ */
+function trustedOrigin(req: Request): string | null {
+  const canonical = process.env.SITE_URL ? stripSlash(process.env.SITE_URL) : '';
+  const deployment = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '';
+  const allowed = [canonical, deployment].filter(Boolean);
+
+  const sent = req.headers.get('origin');
+  if (sent) {
+    const normalised = stripSlash(sent.trim());
+    if (allowed.includes(normalised)) return normalised;
+    console.warn(`checkout: ignoring untrusted origin ${normalised}`);
+  }
+
+  return canonical || deployment || null;
+}
+
 /**
  * Creates a Stripe Checkout Session for one system.
  * Refuses if SYSTEMS_LIVE is not 'true', or if the system has no configured
@@ -48,9 +81,10 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   const { stripePriceId } = SYSTEM_FULFILMENT[systemId];
-  const origin = req.headers.get('origin') || process.env.SITE_URL || '';
+
+  const origin = trustedOrigin(req);
   if (!origin) {
-    console.error('checkout: no origin and no SITE_URL');
+    console.error('checkout: neither SITE_URL nor VERCEL_URL is set');
     return json({ error: 'Checkout is not configured.' }, 500);
   }
 

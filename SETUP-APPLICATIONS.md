@@ -158,10 +158,17 @@ site shows "Available soon" with email capture on every system.
 | `STRIPE_SECRET_KEY` | Stripe → Developers → API keys. Use `sk_test_...` first. |
 | `STRIPE_WEBHOOK_SECRET` | Given when you create the webhook endpoint (`whsec_...`). |
 | `GITHUB_TOKEN` | Fine-grained PAT with **Administration: read & write** on the eight repos only. |
-| `SITE_URL` | `https://botnode.vercel.app` — fallback for the Stripe redirect. |
+| `SITE_URL` | `https://botnode.vercel.app` — the canonical origin Stripe redirects back to. |
 
 The GitHub token should be scoped to those eight repos and nothing else. It can
 add collaborators, so it is not a token to be generous with.
+
+**Set `SITE_URL` in Production.** It is not merely a fallback: `/api/checkout`
+allowlists the request's `Origin` header against it (plus `VERCEL_URL`, so
+preview deployments keep working) and ignores anything else. If it is unset,
+redirects fall back to `VERCEL_URL`, which is the per-deployment hostname
+rather than your stable domain — so buyers would be returned to a URL that
+changes with every deploy.
 
 ## Fill in `api/_fulfilment.ts`
 
