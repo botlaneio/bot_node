@@ -51,3 +51,30 @@
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/*
+  Stretched link. Expands a card's single <Link> to cover the whole card, so
+  the card stays clickable anywhere with a mouse while remaining exactly one
+  focusable control for keyboard and screen reader users.
+
+  The parent card must be positioned (`relative`).
+*/
+.card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+}
+
+/*
+  Focus is drawn on the stretched pseudo-element, so the ring traces the whole
+  card rather than just the words "View" or "Details".
+*/
+.card-link:focus-visible {
+  outline: none;
+}
+
+.card-link:focus-visible::after {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}

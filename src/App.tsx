@@ -60,13 +60,9 @@ function LandingPage({ onOpenBooking }: { onOpenBooking: () => void }) {
 }
 
 function MarketplacePage({ onOpenBooking }: { onOpenBooking: () => void }) {
-  const navigate = useNavigate();
-  return (
-    <Marketplace
-      onOpenBooking={onOpenBooking}
-      onSystemSelect={(id) => navigate(`/systems/${id.toLowerCase()}`)}
-    />
-  );
+  // Cards carry their own <Link>, so there is no navigation callback to thread
+  // through — which is also what makes them reachable by keyboard.
+  return <Marketplace onOpenBooking={onOpenBooking} />;
 }
 
 function SystemDetailPage({ onOpenBooking }: { onOpenBooking: () => void }) {

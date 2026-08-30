@@ -1,14 +1,32 @@
 import React, { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { ArrowRight, Settings, Server, Users, Search, Target, Zap, LayoutGrid, Terminal, ShieldCheck, Key, Check, FileJson, BookOpen, Lock, Database, Network } from 'lucide-react';
 import { CATEGORIES, FEATURED_SYSTEMS, LIBRARY } from '../data/systemsData';
 
+/** IDs are stored as "SYS-01" but appear lowercased in URLs. */
+const systemPath = (id: string): string => `/systems/${id.toLowerCase()}`;
+
+/**
+ * Cards use the "stretched link" pattern: one real <Link> per card, whose
+ * ::after is expanded to cover the whole card. The card stays clickable
+ * anywhere by mouse, but there is exactly one focusable control, it carries a
+ * genuine href, and it can be tabbed to, opened in a new tab, or read out by
+ * a screen reader. Previously the card was a <div onClick> wrapping a
+ * <button> that had no handler at all, so the entire catalogue — and with it
+ * every system page — was unreachable without a mouse.
+ *
+ * Defined in index.css rather than composed from Tailwind utilities: it has to
+ * live in a shared constant to avoid repeating it, and Tailwind's scanner does
+ * not emit rules for classes it only ever sees inside a variable.
+ */
+const CARD_LINK = 'card-link';
+
 interface MarketplaceProps {
-  onSystemSelect: (systemId: string) => void;
   onOpenBooking?: () => void;
 }
 
-export default function Marketplace({ onSystemSelect, onOpenBooking }: MarketplaceProps) {
+export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
   const [activeCategory, setActiveCategory] = useState("All Systems");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -63,8 +81,7 @@ export default function Marketplace({ onSystemSelect, onOpenBooking }: Marketpla
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {FEATURED_SYSTEMS.map((sys, idx) => (
             <div key={sys.id}
-              onClick={() => onSystemSelect(sys.id)}
-              className="group cursor-pointer flex flex-col bg-[var(--color-card)] rounded-[var(--radius-card)] border border-[var(--color-line)] p-6 shadow-sm hover:border-[var(--color-line-strong)] hover:shadow-md transition-all"
+              className="group relative flex flex-col bg-[var(--color-card)] rounded-[var(--radius-card)] border border-[var(--color-line)] p-6 shadow-sm hover:border-[var(--color-line-strong)] hover:shadow-md transition-all"
             >
               <div className="mb-4">
                 <span className="eyebrow text-[var(--color-ink-subtle)] block mb-3">{sys.category}</span>
@@ -76,9 +93,13 @@ export default function Marketplace({ onSystemSelect, onOpenBooking }: Marketpla
               
               <div className="pt-5 border-t border-[var(--color-line)] flex items-center justify-between mt-auto">
                 <div className="text-[var(--color-ink)] font-medium">{sys.price}</div>
-                <button className="h-9 px-4 rounded-[var(--radius-control)] bg-[var(--color-invert)] text-[var(--color-ink-invert)] text-sm font-medium hover:bg-[var(--color-invert-raised)] transition-colors flex items-center gap-2">
+                <Link
+                  to={systemPath(sys.id)}
+                  aria-label={`View ${sys.name}`}
+                  className={`h-9 px-4 rounded-[var(--radius-control)] bg-[var(--color-invert)] text-[var(--color-ink-invert)] text-sm font-medium hover:bg-[var(--color-invert-raised)] transition-colors flex items-center gap-2 ${CARD_LINK}`}
+                >
                   View <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                </Link>
               </div>
             </div>
           ))}
@@ -133,8 +154,7 @@ export default function Marketplace({ onSystemSelect, onOpenBooking }: Marketpla
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredLibrary.map((sys, idx) => (
               <div key={sys.id}
-                onClick={() => onSystemSelect(sys.id)}
-                className="flex flex-col bg-[var(--color-card)] rounded-[var(--radius-card)] border border-[var(--color-line)] p-5 shadow-sm hover:border-[var(--color-line-strong)] hover:shadow-md transition-all group cursor-pointer"
+                className="relative flex flex-col bg-[var(--color-card)] rounded-[var(--radius-card)] border border-[var(--color-line)] p-5 shadow-sm hover:border-[var(--color-line-strong)] hover:shadow-md transition-all group"
               >
                 <div className="flex items-start justify-between mb-4">
                   <span className="eyebrow text-[var(--color-ink-subtle)]">{sys.category}</span>
@@ -164,9 +184,13 @@ export default function Marketplace({ onSystemSelect, onOpenBooking }: Marketpla
                 
                 <div className="flex items-center justify-between mt-auto">
                   <div className="text-[var(--color-ink)] font-medium">{sys.price}</div>
-                  <button className="text-sm font-medium text-[var(--color-ink)] hover:text-[var(--color-ink-muted)] transition-colors flex items-center gap-1">
+                  <Link
+                    to={systemPath(sys.id)}
+                    aria-label={`Details for ${sys.name}`}
+                    className={`text-sm font-medium text-[var(--color-ink)] hover:text-[var(--color-ink-muted)] transition-colors flex items-center gap-1 ${CARD_LINK}`}
+                  >
                     Details <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}
