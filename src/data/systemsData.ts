@@ -25,6 +25,26 @@ export interface SystemData {
   deployment?: string;
   price: string;
   status?: string;
+
+  /* ---- Pre-purchase detail. Every field below is optional: the page hides
+     any section you leave empty, so a system can be filled in gradually. ---- */
+
+  /** Accounts, keys and infrastructure the buyer must already have. */
+  prerequisites?: string[];
+  /** Exactly what lands in the repo they get access to. */
+  whatYouGet?: string[];
+  /** Numbered setup steps. Keep them short — this substantiates `deployment`. */
+  setupSteps?: string[];
+  /** One realistic example of what the system produces. */
+  sampleOutput?: { label: string; body: string };
+  /** Third-party costs the buyer pays on top of the licence, if any. */
+  runningCosts?: string;
+  /** Honest limits. Two or three build more trust than another feature. */
+  limitations?: string[];
+  /** How long fixes and updates reach the buyer. */
+  updatePolicy?: string;
+  /** Whether it may be deployed into the buyer's own client environments. */
+  licenceScope?: string;
 }
 
 export const FEATURED_SYSTEMS: SystemData[] = [
