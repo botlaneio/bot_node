@@ -23,12 +23,23 @@ function toHex(buf: ArrayBuffer): string {
  * unverified body must never be trusted.
  */
 async function verify(raw: string, header: string, secret: string): Promise<boolean> {
-  const parts = Object.fromEntries(
-    header.split(',').map((kv) => kv.split('=').map((s) => s.trim()) as [string, string])
-  );
-  const timestamp = parts['t'];
-  const signature = parts['v1'];
-  if (!timestamp || !signature) return false;
+  // Parsed by hand rather than with Object.fromEntries, which keeps only the
+  // last value for a repeated key. Stripe sends one `v1` per active secret
+  // while a webhook secret is being rolled, so collapsing them would discard
+  // every candidate but one and reject good events through the whole rotation.
+  let timestamp = '';
+  const signatures: string[] = [];
+
+  for (const part of header.split(',')) {
+    const eq = part.indexOf('=');
+    if (eq === -1) continue;
+    const key = part.slice(0, eq).trim();
+    const value = part.slice(eq + 1).trim();
+    if (key === 't') timestamp = value;
+    else if (key === 'v1') signatures.push(value);
+  }
+
+  if (!timestamp || signatures.length === 0) return false;
 
   // Reject replays of old payloads (5 minute tolerance).
   const age = Math.abs(Date.now() / 1000 - Number(timestamp));
@@ -42,7 +53,15 @@ async function verify(raw: string, header: string, secret: string): Promise<bool
     ['sign']
   );
   const mac = await crypto.subtle.sign('HMAC', key, enc.encode(`${timestamp}.${raw}`));
-  return safeEqual(toHex(mac), signature);
+  const expected = toHex(mac);
+
+  // Any single match is a valid signature. Every candidate is compared with no
+  // early exit, so the work done does not vary with which one matched.
+  let matched = false;
+  for (const candidate of signatures) {
+    if (safeEqual(expected, candidate)) matched = true;
+  }
+  return matched;
 }
 
 /** Invites the buyer to the private repo as a read-only collaborator. */
