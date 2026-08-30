@@ -67,7 +67,7 @@ export const MinimalHowItWorks: React.FC = () => {
                 <circle cx="100" cy="100" r="68" fill="none" stroke="currentColor" strokeWidth="1" />
               </svg>
               <div className="relative z-10 p-3.5 rounded-xl bg-white border border-[#e3e3e0] shadow-xs text-xs font-mono space-y-1">
-                <div className="flex items-center gap-1 text-emerald-700 font-semibold text-[10px]">
+                <div className="flex items-center gap-1 text-[var(--color-ink)] font-semibold text-[10px]">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>SPF · DKIM · DMARC VALIDATED</span>
                 </div>
@@ -130,7 +130,7 @@ export const MinimalHowItWorks: React.FC = () => {
                 <circle cx="100" cy="100" r="68" fill="none" stroke="currentColor" strokeWidth="1" />
               </svg>
               <div className="relative z-10 p-3.5 rounded-xl bg-white border border-[#e3e3e0] shadow-xs text-xs font-mono">
-                <span className="text-emerald-700 block text-[10px] font-bold">● INBOUND RESPONSE</span>
+                <span className="text-[var(--color-ink)] block text-[10px] font-bold">● INBOUND RESPONSE</span>
                 <span className="font-semibold text-zinc-900 block mt-0.5">"Let's talk Thursday at 2pm"</span>
               </div>
             </div>

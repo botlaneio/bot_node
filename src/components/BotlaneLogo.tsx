@@ -4,7 +4,7 @@ import { motion, type Variants } from 'motion/react';
 interface BotlaneLogoProps {
   className?: string;
   size?: number;
-  theme?: 'dark' | 'light' | 'monochrome' | 'emerald';
+  theme?: 'dark' | 'light' | 'monochrome';
   showSquircle?: boolean;
   animateOnLoad?: boolean;
 }
@@ -80,20 +80,14 @@ export const BotlaneLogo: React.FC<BotlaneLogoProps> = ({
   const isDarkCanvas = theme === 'dark' || theme === 'monochrome';
 
   // Primary foreground wave color
-  const fgColor =
-    theme === 'emerald'
-      ? '#10B981'
-      : isDarkCanvas
-      ? '#FAFAFA'
-      : '#2c2c2a'; // Softer off-black/dark grey for light navbar
+  const fgColor = isDarkCanvas
+    ? '#FAFAFA'
+    : '#2c2c2a'; // Softer off-black/dark grey for light navbar
 
   // Secondary background wave color
-  const bgColor =
-    theme === 'emerald'
-      ? 'rgba(16, 185, 129, 0.3)'
-      : isDarkCanvas
-      ? 'rgba(255, 255, 255, 0.28)'
-      : 'rgba(24, 24, 27, 0.25)';
+  const bgColor = isDarkCanvas
+    ? 'rgba(255, 255, 255, 0.28)'
+    : 'rgba(24, 24, 27, 0.25)';
 
   // Horizontal lane band color
   const laneGradientStart = isDarkCanvas
@@ -104,12 +98,7 @@ export const BotlaneLogo: React.FC<BotlaneLogoProps> = ({
     : 'rgba(24, 24, 27, 0.02)';
 
   // Baseline dots color
-  const dotColor =
-    theme === 'emerald'
-      ? '#059669'
-      : isDarkCanvas
-      ? '#71717A'
-      : '#71717A';
+  const dotColor = '#71717A';
 
   const squircleBg = isDarkCanvas ? '#121211' : '#F4F4F0';
   const squircleBorder = isDarkCanvas ? '#272725' : '#E4E4DF';
@@ -133,13 +122,6 @@ export const BotlaneLogo: React.FC<BotlaneLogoProps> = ({
           <stop offset="75%" stopColor={laneGradientStart} />
           <stop offset="100%" stopColor={laneGradientEnd} />
         </linearGradient>
-
-        {theme === 'emerald' ? (
-          <linearGradient id="wave-emerald" x1="350" y1="180" x2="650" y2="720" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#34D399" />
-            <stop offset="100%" stopColor="#059669" />
-          </linearGradient>
-        ) : null}
       </defs>
 
       {/* Optional Outer Container */}
@@ -181,7 +163,7 @@ export const BotlaneLogo: React.FC<BotlaneLogoProps> = ({
       {/* Foreground Main Wave (Refined Pulse Wave) */}
       <motion.path
         d="M 370 450 L 485 180 L 595 710 L 675 435"
-        stroke={theme === 'emerald' ? 'url(#wave-emerald)' : fgColor}
+        stroke={fgColor}
         strokeWidth="96"
         strokeLinecap="round"
         strokeLinejoin="round"

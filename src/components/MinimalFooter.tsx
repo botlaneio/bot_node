@@ -229,8 +229,8 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
               <p>© {new Date().getFullYear()} Botlane Inc. All rights reserved.</p>
               <div className="flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-ink-invert)] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-ink-invert)]"></span>
                 </span>
                 <span className="text-white/60">All systems operational</span>
               </div>

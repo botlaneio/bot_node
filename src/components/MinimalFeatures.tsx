@@ -162,7 +162,7 @@ export const MinimalFeatures: React.FC = () => {
                 </defs>
                 <rect width="100%" height="100%" fill="url(#crosshair-grid)" />
                 
-                <g transform="translate(200, 100)" className="text-emerald-600">
+                <g transform="translate(200, 100)" className="text-[var(--color-ink)]">
                    <circle cx="0" cy="0" r="48" fill="currentColor" fillOpacity="0.04" stroke="currentColor" strokeWidth="1" strokeOpacity="0.4" strokeDasharray="2 4" />
                    <circle cx="0" cy="0" r="88" fill="currentColor" fillOpacity="0.02" stroke="currentColor" strokeWidth="1" strokeOpacity="0.15" />
                    
@@ -224,7 +224,7 @@ export const MinimalFeatures: React.FC = () => {
               className="relative flex items-center justify-center overflow-hidden rounded-[var(--radius-card)] border border-[#e3e3e0] bg-[#ebebe8] mt-6 w-full h-44 p-4"
             >
               <div className="relative z-10 p-3.5 rounded-xl bg-white border border-[#e3e3e0] shadow-xs w-full max-w-[200px] text-left">
-                <span className="eyebrow text-emerald-700 block">Verified Signal</span>
+                <span className="eyebrow text-[var(--color-ink-muted)] block">Verified Signal</span>
                 <span className="text-xs font-bold text-[#0d0d0d] block mt-1">Stalled 60+ Days</span>
                 <span className="text-[10px] text-[#6b6b68] block mt-0.5">3 public reposts detected</span>
               </div>
@@ -271,7 +271,7 @@ export const MinimalFeatures: React.FC = () => {
             >
               <div className="relative z-10 flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-[#e3e3e0] shadow-xs text-xs font-mono text-[#0d0d0d]">
                 <motion.div variants={checkHoverVariants}>
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <Check className="w-4 h-4 text-[var(--color-ink)] shrink-0" />
                 </motion.div>
                 <span>100% Client Ownership of Data</span>
               </div>
@@ -305,7 +305,7 @@ export const MinimalFeatures: React.FC = () => {
               </defs>
               <rect width="100%" height="100%" fill="url(#signal-grid)" />
               
-              <g transform="translate(200, 100)" className="text-emerald-400">
+              <g transform="translate(200, 100)" className="text-[var(--color-ink-invert)]">
                  {/* Ripple effect rings */}
                  <circle cx="0" cy="0" r="32" fill="none" stroke="currentColor" strokeWidth="1" strokeOpacity="0.4" />
                  <circle cx="0" cy="0" r="64" fill="none" stroke="currentColor" strokeWidth="1" strokeOpacity="0.2" strokeDasharray="4 4" />

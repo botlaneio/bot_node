@@ -159,10 +159,10 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
                 <div className="flex items-start justify-between mb-4">
                   <span className="eyebrow text-[var(--color-ink-subtle)]">{sys.category}</span>
                   {sys.status === 'Beta' && (
-                    <span className="text-[10px] uppercase tracking-wider font-semibold bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full border border-emerald-200">Beta</span>
+                    <span className="text-[10px] uppercase tracking-wider font-semibold bg-[var(--color-sunken)] text-[var(--color-ink-muted)] px-2 py-0.5 rounded-full border border-[var(--color-line-strong)]">Beta</span>
                   )}
                   {sys.status === 'Updated' && (
-                    <span className="text-[10px] uppercase tracking-wider font-semibold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-200">Updated</span>
+                    <span className="text-[10px] uppercase tracking-wider font-semibold bg-[var(--color-invert)] text-[var(--color-ink-invert)] px-2 py-0.5 rounded-full border border-[var(--color-invert)]">Updated</span>
                   )}
                 </div>
                 
@@ -229,9 +229,9 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
                <Key className="size-6 text-[var(--color-ink-invert)] mb-4" />
                <h3 className="text-lg font-semibold tracking-tight mb-2">Enterprise Security</h3>
                <ul className="space-y-3 text-sm text-[var(--color-ink-invert-muted)] mt-6">
-                 <li className="flex items-center gap-3"><Check className="size-4 text-emerald-400 shrink-0" /> Zero Data Retention</li>
-                 <li className="flex items-center gap-3"><Check className="size-4 text-emerald-400 shrink-0" /> Bring Your Own Key (BYOK)</li>
-                 <li className="flex items-center gap-3"><Check className="size-4 text-emerald-400 shrink-0" /> VPC/On-Prem Deployable</li>
+                 <li className="flex items-center gap-3"><Check className="size-4 text-[var(--color-ink-invert)] shrink-0" /> Zero Data Retention</li>
+                 <li className="flex items-center gap-3"><Check className="size-4 text-[var(--color-ink-invert)] shrink-0" /> Bring Your Own Key (BYOK)</li>
+                 <li className="flex items-center gap-3"><Check className="size-4 text-[var(--color-ink-invert)] shrink-0" /> VPC/On-Prem Deployable</li>
                </ul>
              </div>
           </div>
@@ -267,10 +267,10 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
       {/* 06 - ENTERPRISE SECURITY & COMPLIANCE */}
       <section className="px-5 md:px-8 max-w-[1180px] mx-auto mb-32">
         <div className="bg-[var(--color-page)] border-y border-[var(--color-line)] py-20 relative overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-emerald-500/5 blur-[120px] rounded-[100%] pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[var(--color-ink)]/5 blur-[120px] rounded-[100%] pointer-events-none" />
           
           <div className="relative z-10 text-center max-w-3xl mx-auto mb-16">
-            <span className="eyebrow inline-flex items-center gap-2 rounded-[var(--radius-control)] border px-3 py-1.5 border-[var(--color-line)] bg-white text-emerald-700 mb-6 shadow-sm">
+            <span className="eyebrow inline-flex items-center gap-2 rounded-[var(--radius-control)] border px-3 py-1.5 border-[var(--color-line)] bg-white text-[var(--color-ink-muted)] mb-6 shadow-sm">
               <ShieldCheck className="size-3" />
               Enterprise Grade
             </span>

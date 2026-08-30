@@ -39,7 +39,7 @@ export const PurchaseComplete: React.FC = () => {
   return (
     <section className="px-5 md:px-8 max-w-[640px] mx-auto pt-40 pb-32">
       <div className="rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-white p-8 md:p-10">
-        <div className="grid size-12 place-items-center rounded-full border border-[#D1E6D8] bg-[#F2F8F4] text-emerald-800">
+        <div className="grid size-12 place-items-center rounded-full bg-[var(--color-invert)] text-[var(--color-ink-invert)]">
           <Check className="w-6 h-6" />
         </div>
 

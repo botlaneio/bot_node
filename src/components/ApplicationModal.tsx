@@ -32,7 +32,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onCl
       particleCount: 50,
       spread: 60,
       origin: { y: 0.6 },
-      colors: ['#18181b', '#059669', '#10b981', '#71717a', '#e4e4e7'],
+      colors: ['#0a0a0a', '#3f3f46', '#71717a', '#a1a1aa', '#e4e4e7'],
       ticks: 200,
       gravity: 1.1,
       scalar: 0.85,
@@ -261,7 +261,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onCl
           </div>
         ) : (
           <div className="text-center py-6 space-y-4">
-            <div className="w-12 h-12 rounded-full bg-[#F2F8F4] border border-[#D1E6D8] text-emerald-800 flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-full bg-[var(--color-invert)] text-[var(--color-ink-invert)] flex items-center justify-center mx-auto">
               <Check className="w-6 h-6" />
             </div>
             <h3 className="font-['Newsreader',serif] text-2xl font-medium text-zinc-950">
