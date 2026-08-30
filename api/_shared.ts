@@ -98,3 +98,94 @@ export async function notify(subject: string, rows: [string, string][], replyTo?
     console.error('resend threw', err);
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Rate limiting
+ * ------------------------------------------------------------------ */
+
+/**
+ * The true client address. Vercel sets both of these at the edge, so they
+ * cannot be spoofed by the caller the way a bare X-Forwarded-For could be
+ * behind an untrusted proxy. `x-forwarded-for` may be a chain — the client is
+ * the leftmost entry.
+ */
+const clientIp = (req: Request): string =>
+  req.headers.get('x-real-ip')?.trim() ||
+  (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() ||
+  'unknown';
+
+/** SHA-256, truncated. Enough to key a counter, not enough to be a rainbow target. */
+async function hashKey(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+  return [...new Uint8Array(digest)]
+    .slice(0, 16)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+/**
+ * Counts one hit against `${name}:${caller}` and reports whether it is allowed.
+ *
+ * The counting happens in Postgres (see supabase/rate-limits.sql) because edge
+ * isolates are per-region and short-lived — an in-process counter would reset
+ * constantly and never see the requests handled by a sibling isolate, which
+ * makes it protection in appearance only.
+ *
+ * The address is hashed before it is stored, so the table holds no raw IPs.
+ *
+ * Fails OPEN. If Supabase is unreachable the visitor is let through and the
+ * failure goes to the runtime logs: turning an outage into a site that refuses
+ * every genuine inquiry is worse than briefly losing the ceiling. This matches
+ * how `notify` already treats a failed email.
+ */
+export async function rateLimit(
+  name: string,
+  req: Request,
+  maxHits: number,
+  windowSeconds: number
+): Promise<boolean> {
+  const cfg = supabaseConfig();
+  if (!cfg) return true;
+
+  try {
+    const bucket = `${name}:${await hashKey(clientIp(req))}`;
+
+    const res = await fetch(`${cfg.url}/rest/v1/rpc/check_rate_limit`, {
+      method: 'POST',
+      headers: {
+        apikey: cfg.key,
+        Authorization: `Bearer ${cfg.key}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        p_bucket: bucket,
+        p_max_hits: maxHits,
+        p_window_seconds: windowSeconds,
+      }),
+    });
+
+    if (!res.ok) {
+      console.error('rate limit check failed', res.status, await res.text());
+      return true;
+    }
+
+    // PostgREST returns a scalar-returning function's value as bare JSON.
+    return (await res.json()) === true;
+  } catch (err) {
+    console.error('rate limit check threw', err);
+    return true;
+  }
+}
+
+/**
+ * 429 with a Retry-After, so a well-behaved client knows when to come back
+ * rather than retrying into the same wall.
+ */
+export const tooManyRequests = (retryAfterSeconds: number, message: string): Response =>
+  new Response(JSON.stringify({ error: message }), {
+    status: 429,
+    headers: {
+      'Content-Type': 'application/json',
+      'Retry-After': String(retryAfterSeconds),
+    },
+  });

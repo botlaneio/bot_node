@@ -1,4 +1,4 @@
-import { json, str, isEmail } from './_shared';
+import { json, str, isEmail, rateLimit, tooManyRequests } from './_shared';
 import { SYSTEM_FULFILMENT, isSellable } from './_fulfilment';
 
 export const config = { runtime: 'edge' };
@@ -20,6 +20,17 @@ export default async function handler(req: Request): Promise<Response> {
   if (!secret) {
     console.error('checkout: STRIPE_SECRET_KEY missing');
     return json({ error: 'Checkout is not configured.' }, 500);
+  }
+
+  // Placed after the SYSTEMS_LIVE and key checks because those are pure env
+  // reads that refuse for free; there is no work worth protecting above this
+  // line. Ten an hour leaves room to retry a failed card or buy more than one
+  // system, while capping how fast sessions can be minted against the Stripe key.
+  if (!(await rateLimit('checkout', req, 10, 3600))) {
+    return tooManyRequests(
+      3600,
+      'Too many checkout attempts. Please wait an hour, or email sales@botlane.io.'
+    );
   }
 
   let body: Record<string, unknown>;

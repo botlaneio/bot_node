@@ -1,10 +1,27 @@
-import { json, str, isEmail, insertRow, notify } from './_shared';
+import {
+  json,
+  str,
+  isEmail,
+  insertRow,
+  notify,
+  rateLimit,
+  tooManyRequests,
+} from './_shared';
 
 export const config = { runtime: 'edge' };
 
 /** Captures interest while SYSTEMS_LIVE is false. */
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
+  // Looser than the other forms: there are eight systems, and one visitor
+  // signing up for several in a sitting is ordinary behaviour.
+  if (!(await rateLimit('waitlist', req, 10, 3600))) {
+    return tooManyRequests(
+      3600,
+      'Too many requests from this connection. Please wait an hour, or email sales@botlane.io.'
+    );
+  }
 
   let body: Record<string, unknown>;
   try {

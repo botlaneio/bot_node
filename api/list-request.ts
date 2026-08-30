@@ -1,9 +1,25 @@
-import { json, str, isEmail, insertRow, notify } from './_shared';
+import {
+  json,
+  str,
+  isEmail,
+  insertRow,
+  notify,
+  rateLimit,
+  tooManyRequests,
+} from './_shared';
 
 export const config = { runtime: 'edge' };
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
+  // Same shape as /api/apply: a row plus an email, from an anonymous caller.
+  if (!(await rateLimit('list-request', req, 5, 3600))) {
+    return tooManyRequests(
+      3600,
+      'Too many requests from this connection. Please wait an hour, or email sales@botlane.io.'
+    );
+  }
 
   let body: Record<string, unknown>;
   try {
