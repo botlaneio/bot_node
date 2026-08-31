@@ -113,53 +113,79 @@ export const ScheduleFigure: React.FC<{ kind: keyof typeof SCHEDULE }> = ({ kind
    =================================================================== */
 
 /**
- * The scope you define — drawn as the narrowing it actually is.
+ * The target market, drawn as a segmentation and animated as a selection.
  *
- * The first version of this was a set of concentric rings, which was both a
- * repeat of the procedure's step-01 aperture and a picture that named its
- * criteria without showing them. Here each criterion visibly cuts the width,
- * so the drawing states what the caption used to have to.
+ * Two earlier attempts were wrong in instructive ways. Concentric rings were a
+ * symbol for targeting rather than a drawing of this target, and repeated the
+ * procedure's step-01 aperture. Stacked bars showed the narrowing honestly but
+ * were static and took a lot of width to say it.
+ *
+ * A scatter with a marquee says the same thing in a smaller box and can move:
+ * the axes carry the criteria, and the selection lands on the segment while the
+ * companies inside it fill in.
  */
-const InvScope: React.FC = () => {
-  const rows = [
-    { label: 'MARKET', w: 166 },
-    { label: 'AWS / K8S', w: 132 },
-    { label: 'NA + EU', w: 100 },
-    { label: 'SERIES A–C', w: 70 },
-    { label: 'TARGET', w: 44, solid: true },
-  ];
-  return (
-    <>
-      {/* the taper, connecting where each cut lands */}
-      <path
-        d={rows.map((r, i) => `${i === 0 ? 'M' : 'L'}${64 + r.w} ${16 + i * 20}`).join(' ')}
-        fill="none"
-        stroke={RULE}
-        strokeWidth="1"
-        strokeDasharray="2 3"
-      />
-      {rows.map((r, i) => (
-        <g key={r.label}>
-          <text x="10" y={20 + i * 20} fill={r.solid ? INK : GREY} style={tiny}>
-            {r.label}
-          </text>
-          <rect
-            x="64"
-            y={10 + i * 20}
-            width={r.w}
-            height="12"
-            fill={r.solid ? INK : OPEN}
-            stroke={r.solid ? INK : RULE}
-            strokeWidth="1"
-          />
-        </g>
+const SEL = { x: 54, y: 34, w: 76, h: 44 };
+
+const DOTS: Array<[number, number]> = [
+  [34, 80], [44, 62], [38, 44], [52, 86], [58, 70], [62, 52],
+  [70, 38], [66, 84], [76, 66], [82, 48], [88, 74], [94, 58],
+  [100, 40], [96, 88], [106, 68], [112, 52], [118, 80], [124, 62],
+  [130, 44], [136, 76], [142, 58], [146, 86], [40, 26], [86, 28],
+  [120, 32], [140, 40],
+];
+
+const inSelection = (x: number, y: number) =>
+  x >= SEL.x && x <= SEL.x + SEL.w && y >= SEL.y && y <= SEL.y + SEL.h;
+
+const InvScope: React.FC = () => (
+  <>
+    {/* axes */}
+    <path d="M26 14 V96 H152" fill="none" stroke={RULE} strokeWidth="1" />
+    {[40, 66, 92, 118, 144].map((x) => (
+      <path key={x} d={`M${x} 96 V100`} stroke={RULE} strokeWidth="1" />
+    ))}
+
+    {/* every company we can see */}
+    {DOTS.map(([x, y]) => (
+      <rect key={`o${x}-${y}`} x={x - 2.5} y={y - 2.5} width="5" height="5" fill={OPEN} stroke={RULE} strokeWidth="1" />
+    ))}
+
+    {/* the ones inside the segment, filling in behind the selection */}
+    <g className="bl-scope-hit">
+      {DOTS.filter(([x, y]) => inSelection(x, y)).map(([x, y]) => (
+        <rect key={`h${x}-${y}`} x={x - 2.5} y={y - 2.5} width="5" height="5" fill={INK} />
       ))}
-      <text x="64" y="114" fill={GREY} style={tiny}>
-        MINUS YOUR EXCLUSION LIST
+    </g>
+
+    {/* the selection itself */}
+    <g className="bl-scope-sel">
+      <rect
+        x={SEL.x} y={SEL.y} width={SEL.w} height={SEL.h}
+        fill="none" stroke={INK} strokeWidth="1" strokeDasharray="3 3"
+      />
+      {[[SEL.x, SEL.y], [SEL.x + SEL.w, SEL.y], [SEL.x, SEL.y + SEL.h], [SEL.x + SEL.w, SEL.y + SEL.h]].map(
+        ([cx, cy]) => (
+          <path key={`${cx}-${cy}`} d={`M${cx - 3} ${cy} H${cx + 3} M${cx} ${cy - 3} V${cy + 3}`} stroke={INK} strokeWidth="1" />
+        )
+      )}
+      <rect x={SEL.x - 1} y={SEL.y - 12} width="42" height="11" fill="#ffffff" />
+      <text x={SEL.x + 1} y={SEL.y - 4} fill={INK} style={tiny}>TARGET</text>
+    </g>
+
+    {/* what the axes mean */}
+    <text transform="rotate(-90 12 58)" x="12" y="58" textAnchor="middle" fill={GREY} style={tiny}>
+      TEAM SIZE
+    </text>
+    {[['SEED', 40], ['A', 66], ['B', 92], ['C', 118], ['D', 144]].map(([t, x]) => (
+      <text key={t as string} x={x as number} y="110" textAnchor="middle" fill={GREY} style={tiny}>
+        {t}
       </text>
-    </>
-  );
-};
+    ))}
+    {/* split, because one run of this at 7px overflowed the 160-unit box */}
+    <text x="26" y="126" fill={GREY} style={tiny}>FUNDING STAGE</text>
+    <text x="152" y="126" textAnchor="end" fill={GREY} style={tiny}>− EXCLUSIONS</text>
+  </>
+);
 
 /** Forty companies, dated — the ones past the line are yours. */
 const InvSignals: React.FC = () => {
@@ -208,23 +234,37 @@ const InvOwnership: React.FC = () => (
   </>
 );
 
-const INVENTORY: Record<string, { node: React.ReactNode; alt: string }> = {
+const INVENTORY: Record<string, { node: React.ReactNode; alt: string; box: string; width: string }> = {
   scope: {
+    box: '0 0 160 132',
+    width: 'max-w-[280px]',
     node: <InvScope />,
-    alt: 'Five stacked bars, each shorter than the last: total market, then cut by stack, by region, by funding stage, down to a solid target bar, minus your exclusion list.',
+    alt: 'Companies plotted by funding stage against team size. A dashed selection lands on the Series A to C band at mid team size, and the companies inside it fill in solid.',
   },
   signals: {
+    box: '0 0 240 120',
+    width: 'w-full',
     node: <InvSignals />,
     alt: 'Fifteen dated bars against a sixty-day line; the taller ones that cross it are filled solid.',
   },
   ownership: {
+    box: '0 0 240 120',
+    width: 'w-full',
     node: <InvOwnership />,
     alt: 'A block of research handed across an arrow into a solid block marked yours either way.',
   },
 };
 
-export const InventoryFigure: React.FC<{ kind: keyof typeof INVENTORY }> = ({ kind }) => (
-  <svg viewBox="0 0 240 120" className="h-auto w-full" role="img" aria-label={INVENTORY[kind].alt}>
-    {INVENTORY[kind].node}
-  </svg>
-);
+export const InventoryFigure: React.FC<{ kind: keyof typeof INVENTORY }> = ({ kind }) => {
+  const fig = INVENTORY[kind];
+  return (
+    <svg
+      viewBox={fig.box}
+      className={`mx-auto h-auto w-full ${fig.width}`}
+      role="img"
+      aria-label={fig.alt}
+    >
+      {fig.node}
+    </svg>
+  );
+};
