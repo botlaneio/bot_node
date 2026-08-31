@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, useInView, useMotionValue, useSpring, useReducedMotion } from 'motion/react';
-import { ScheduleFigure } from './MicroFigures';
+import { ScheduleFigure, Inked } from './MicroFigures';
 
 interface AnimatedCounterProps {
   value: number;
@@ -140,7 +140,7 @@ export const MinimalStats: React.FC = () => {
               whileInView="visible"
               viewport={{ once: true, margin: '-60px' }}
             >
-              {SPEC.map((s) => (
+              {SPEC.map((s, i) => (
                 <motion.div
                   key={s.key}
                   variants={cell}
@@ -157,9 +157,9 @@ export const MinimalStats: React.FC = () => {
                   </p>
                   {/* The constraint restated as a drawing, so the cell reads
                       as measured rather than merely typed. */}
-                  <div className="mt-5">
+                  <Inked className="mt-5" delay={i * 110}>
                     <ScheduleFigure kind={s.figure} />
-                  </div>
+                  </Inked>
                 </motion.div>
               ))}
             </motion.div>

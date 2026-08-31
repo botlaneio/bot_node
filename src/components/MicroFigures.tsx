@@ -1,4 +1,35 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { useInView, useReducedMotion } from 'motion/react';
+
+/**
+ * Inks a figure once, when it is first reached.
+ *
+ * The hidden state is only ever applied when there is something to remove it:
+ * reduced motion and a missing IntersectionObserver both leave the figure
+ * simply drawn. A reveal that depends on script to become visible is one
+ * failed observer away from a blank panel.
+ */
+export const Inked: React.FC<{
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}> = ({ children, delay = 0, className = '' }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion() ?? false;
+  const inView = useInView(ref, { once: true, margin: '-40px' });
+  const armed = !reduced && typeof IntersectionObserver !== 'undefined';
+
+  return (
+    <div
+      ref={ref}
+      className={`${className} ${armed ? 'bl-ink' : ''} ${armed && inView ? 'bl-ink-on' : ''}`}
+      style={delay ? ({ ['--bl-ink-delay' as string]: `${delay}ms` }) : undefined}
+    >
+      {children}
+    </div>
+  );
+};
+
 
 /**
  * Small drawings that sit inside other blocks — a schedule cell, an inventory

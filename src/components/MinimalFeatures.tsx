@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { X } from 'lucide-react';
 import { THRESHOLD_DAYS } from '../data/botlaneData';
-import { InventoryFigure } from './MicroFigures';
+import { InventoryFigure, Inked } from './MicroFigures';
 
 /**
  * What arrives in your inbox — three deliverables, drawn as an inventory on
@@ -163,7 +163,7 @@ export const MinimalFeatures: React.FC = () => {
               whileInView="visible"
               viewport={{ once: true, margin: '-60px' }}
             >
-              {ITEMS.map((item) => (
+              {ITEMS.map((item, i) => (
                 <motion.article
                   key={item.n}
                   variants={cell}
@@ -193,9 +193,12 @@ export const MinimalFeatures: React.FC = () => {
                       {/* Every deliverable gets its own drawing, so the figures
                           are spread through the sheet rather than pooled in one
                           rotating panel. */}
-                      <div className="border border-[var(--sheet-rule)] bg-[#fcfcfb] px-3 py-3">
+                      <Inked
+                        className="border border-[var(--sheet-rule)] bg-[#fcfcfb] px-3 py-3"
+                        delay={i * 130}
+                      >
                         <InventoryFigure kind={item.figure} />
-                      </div>
+                      </Inked>
                       <div className="mt-2">
                         <Reading label={item.label} values={item.values} />
                       </div>
