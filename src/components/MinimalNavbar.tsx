@@ -114,7 +114,7 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking }) =
             <button
               type="button"
               onClick={onOpenBooking}
-              className="hidden h-9 items-center rounded-lg bg-[var(--sheet-ink)] px-4 text-[0.8125rem] font-semibold text-[#fafafa] transition-colors hover:bg-[#2c2c2c] sm:inline-flex"
+              className="hidden h-9 items-center rounded-lg bg-[var(--sheet-accent)] px-4 text-[0.8125rem] font-semibold text-[#fafafa] transition-colors hover:bg-[var(--sheet-accent-hover)] sm:inline-flex"
             >
               Get the list
             </button>
@@ -172,7 +172,7 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking }) =
                 setMobileOpen(false);
                 onOpenBooking();
               }}
-              className="mt-3 mb-2 inline-flex h-11 items-center justify-center rounded-lg bg-[var(--sheet-ink)] text-sm font-semibold text-[#fafafa]"
+              className="mt-3 mb-2 inline-flex h-11 items-center justify-center rounded-lg bg-[var(--sheet-accent)] text-sm font-semibold text-[#fafafa]"
             >
               Get the list
             </button>

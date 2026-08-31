@@ -183,7 +183,7 @@ export const MinimalFeatures: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setOpen(item.n)}
-                        className="bl-mono mt-4 inline-flex items-center gap-1.5 text-[0.625rem] uppercase tracking-[0.14em] text-[#6b6b68] underline decoration-[var(--sheet-rule)] underline-offset-4 transition-colors hover:text-[var(--sheet-ink)] hover:decoration-[var(--sheet-ink)]"
+                        className="bl-mono mt-4 inline-flex items-center gap-1.5 text-[0.625rem] uppercase tracking-[0.14em] text-[var(--sheet-accent)] underline decoration-[var(--sheet-accent)]/35 underline-offset-4 transition-colors hover:decoration-[var(--sheet-accent)]"
                       >
                         Read the detail →
                       </button>
@@ -303,7 +303,7 @@ export const MinimalFeatures: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setOpen(null)}
-                  className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--sheet-ink)] px-4 text-[0.8125rem] font-semibold text-[#fafafa] transition-colors hover:bg-[#2c2c2c]"
+                  className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--sheet-accent)] px-4 text-[0.8125rem] font-semibold text-[#fafafa] transition-colors hover:bg-[var(--sheet-accent-hover)]"
                 >
                   Close
                 </button>

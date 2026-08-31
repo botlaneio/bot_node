@@ -21,7 +21,7 @@ const EMPTY_FORM = {
 const FIELD =
   'w-full border border-[var(--sheet-rule)] bg-[#fcfcfb] px-3 py-2.5 text-[0.8125rem] ' +
   'text-[var(--sheet-ink)] outline-none transition-colors ' +
-  'placeholder:text-[#9a9a96] focus:border-[var(--sheet-ink)] disabled:opacity-60';
+  'placeholder:text-[#9a9a96] focus:border-[var(--sheet-accent)] disabled:opacity-60';
 
 const LABEL =
   'bl-mono mb-1.5 block text-[0.5625rem] uppercase tracking-[0.14em] text-[#9a9a96]';
@@ -300,7 +300,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onCl
               <button
                 type="submit"
                 disabled={submitting}
-                className="mt-1 inline-flex h-12 w-full items-center justify-center rounded-lg bg-[var(--sheet-ink)] text-[0.9375rem] font-semibold text-[#fafafa] transition-colors hover:bg-[#2c2c2c] disabled:cursor-not-allowed disabled:opacity-70"
+                className="mt-1 inline-flex h-12 w-full items-center justify-center rounded-lg bg-[var(--sheet-accent)] text-[0.9375rem] font-semibold text-[#fafafa] transition-colors hover:bg-[var(--sheet-accent-hover)] disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {submitting ? 'Sending…' : 'Submit for slot review'}
               </button>
@@ -324,7 +324,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onCl
             <button
               type="button"
               onClick={close}
-              className="mt-7 inline-flex h-11 items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white px-5 text-sm font-semibold text-[var(--sheet-ink)] transition-colors hover:border-[#c4c4bf]"
+              className="mt-7 inline-flex h-11 items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white px-5 text-sm font-semibold text-[var(--sheet-ink)] transition-colors hover:border-[var(--sheet-accent)] hover:text-[var(--sheet-accent)]"
             >
               Close
             </button>

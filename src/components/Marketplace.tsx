@@ -206,7 +206,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
                     <Link
                       to={systemPath(sys.id)}
                       aria-label={`View ${sys.name}`}
-                      className={`bl-mono text-[0.625rem] uppercase tracking-[0.14em] text-[#6b6b68] underline decoration-[var(--sheet-rule)] underline-offset-4 transition-colors hover:text-[var(--sheet-ink)] hover:decoration-[var(--sheet-ink)] ${CARD_LINK}`}
+                      className={`bl-mono text-[0.625rem] uppercase tracking-[0.14em] text-[var(--sheet-accent)] underline decoration-[var(--sheet-accent)]/35 underline-offset-4 transition-colors hover:decoration-[var(--sheet-accent)] ${CARD_LINK}`}
                     >
                       View →
                     </Link>
@@ -230,8 +230,8 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
                       onClick={() => setActiveCategory(cat)}
                       className={`bl-mono shrink-0 border px-3 py-2 text-[0.625rem] whitespace-nowrap uppercase tracking-[0.12em] transition-colors ${
                         active
-                          ? 'border-[var(--sheet-ink)] bg-[var(--sheet-ink)] text-[#fafafa]'
-                          : 'border-[var(--sheet-rule)] bg-white text-[#6b6b68] hover:border-[#c4c4bf] hover:text-[var(--sheet-ink)]'
+                          ? 'border-[var(--sheet-accent)] bg-[var(--sheet-accent)] text-[#fafafa]'
+                          : 'border-[var(--sheet-rule)] bg-white text-[#6b6b68] hover:border-[var(--sheet-accent)] hover:text-[var(--sheet-accent)] hover:text-[var(--sheet-ink)]'
                       }`}
                     >
                       {cat}
@@ -250,7 +250,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
                   placeholder="Search library…"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-10 w-full border border-[var(--sheet-rule)] bg-white px-3 text-sm text-[var(--sheet-ink)] outline-none transition-colors placeholder:text-[#9a9a96] focus:border-[var(--sheet-ink)]"
+                  className="h-10 w-full border border-[var(--sheet-rule)] bg-white px-3 text-sm text-[var(--sheet-ink)] outline-none transition-colors placeholder:text-[#9a9a96] focus:border-[var(--sheet-accent)]"
                 />
               </div>
             </div>
@@ -336,7 +336,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
                       <Link
                         to={systemPath(sys.id)}
                         aria-label={`Details for ${sys.name}`}
-                        className={`bl-mono text-[0.625rem] uppercase tracking-[0.14em] text-[#6b6b68] underline decoration-[var(--sheet-rule)] underline-offset-4 transition-colors hover:text-[var(--sheet-ink)] hover:decoration-[var(--sheet-ink)] ${CARD_LINK}`}
+                        className={`bl-mono text-[0.625rem] uppercase tracking-[0.14em] text-[var(--sheet-accent)] underline decoration-[var(--sheet-accent)]/35 underline-offset-4 transition-colors hover:decoration-[var(--sheet-accent)] ${CARD_LINK}`}
                       >
                         Details →
                       </Link>

@@ -77,7 +77,7 @@ export const BuySystem: React.FC<BuySystemProps> = ({ systemId, systemName, pric
         <button
           onClick={startCheckout}
           disabled={busy}
-          className="w-full h-12 rounded-lg bg-[var(--sheet-ink)] text-[#fafafa] font-medium transition-colors hover:bg-[#2c2c2c] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full h-12 rounded-lg bg-[var(--sheet-accent)] text-[#fafafa] font-medium transition-colors hover:bg-[var(--sheet-accent-hover)] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {busy ? (
             <>
@@ -145,12 +145,12 @@ export const BuySystem: React.FC<BuySystemProps> = ({ systemId, systemName, pric
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@consultancy.com"
-          className="w-full h-11 rounded-lg border border-[var(--sheet-rule)] bg-[var(--sheet-page)] px-4 text-sm text-[var(--sheet-ink)] outline-none transition-colors focus:border-[var(--sheet-ink)] disabled:opacity-60"
+          className="w-full h-11 rounded-lg border border-[var(--sheet-rule)] bg-[var(--sheet-page)] px-4 text-sm text-[var(--sheet-ink)] outline-none transition-colors focus:border-[var(--sheet-accent)] disabled:opacity-60"
         />
         <button
           type="submit"
           disabled={busy}
-          className="w-full h-11 rounded-lg bg-[var(--sheet-ink)] text-[#fafafa] text-sm font-medium transition-colors hover:bg-[#2c2c2c] flex items-center justify-center gap-2 disabled:opacity-70"
+          className="w-full h-11 rounded-lg bg-[var(--sheet-accent)] text-[#fafafa] text-sm font-medium transition-colors hover:bg-[var(--sheet-accent-hover)] flex items-center justify-center gap-2 disabled:opacity-70"
         >
           {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Tell me when it ships'}
         </button>

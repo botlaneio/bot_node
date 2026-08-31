@@ -39,9 +39,7 @@ export const PurchaseComplete: React.FC = () => {
   return (
     <section className="px-5 md:px-8 max-w-[640px] mx-auto pt-40 pb-32">
       <div className="border border-[var(--sheet-rule)] bg-white p-8 md:p-10">
-        <div className="grid size-12 place-items-center rounded-full bg-[var(--sheet-ink)] text-[#fafafa]">
-          <Check className="w-6 h-6" />
-        </div>
+        <span className="block size-2.5 bg-[var(--sheet-ink)]" aria-hidden="true" />
 
         <h1 className="mt-6 text-2xl md:text-3xl font-medium tracking-tight text-[var(--sheet-ink)]">
           Payment received{system ? ` for ${system.name}` : ''}.

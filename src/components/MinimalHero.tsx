@@ -169,13 +169,13 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
                 <button
                   type="button"
                   onClick={onOpenBooking}
-                  className="inline-flex h-12 items-center justify-center rounded-lg bg-[var(--sheet-ink)] px-6 text-[0.9375rem] font-semibold text-[#fafafa] transition-colors duration-200 hover:bg-[#2c2c2c]"
+                  className="inline-flex h-12 items-center justify-center rounded-lg bg-[var(--sheet-accent)] px-6 text-[0.9375rem] font-semibold text-[#fafafa] transition-colors duration-200 hover:bg-[var(--sheet-accent-hover)]"
                 >
                   Check slot availability
                 </button>
                 <a
                   href="#how-it-works"
-                  className="inline-flex h-12 items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white px-6 text-[0.9375rem] font-semibold text-[var(--sheet-ink)] transition-colors duration-200 hover:border-[#c4c4bf]"
+                  className="inline-flex h-12 items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white px-6 text-[0.9375rem] font-semibold text-[var(--sheet-ink)] transition-colors duration-200 hover:border-[var(--sheet-accent)] hover:text-[var(--sheet-accent)]"
                 >
                   See how it works
                 </a>

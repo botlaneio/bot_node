@@ -84,10 +84,15 @@ export const BotlaneLogo: React.FC<BotlaneLogoProps> = ({
     ? '#FAFAFA'
     : '#2c2c2a'; // Softer off-black/dark grey for light navbar
 
-  // Secondary background wave color
+  /*
+    The mark carries the accent only in its subordinate parts — the secondary
+    wave behind the pulse, and the ticks at the base. The pulse itself stays
+    near-black, so the logo never reads as blue and never competes with a
+    call to action sitting beside it in the navbar.
+  */
   const bgColor = isDarkCanvas
-    ? 'rgba(255, 255, 255, 0.28)'
-    : 'rgba(24, 24, 27, 0.25)';
+    ? 'rgba(130, 170, 225, 0.34)'
+    : 'rgba(27, 77, 143, 0.32)';
 
   // Horizontal lane band color
   const laneGradientStart = isDarkCanvas
@@ -97,8 +102,8 @@ export const BotlaneLogo: React.FC<BotlaneLogoProps> = ({
     ? 'rgba(255, 255, 255, 0.03)'
     : 'rgba(24, 24, 27, 0.02)';
 
-  // Baseline dots color
-  const dotColor = '#71717A';
+  // Baseline dots, tinted to match the secondary wave on each ground
+  const dotColor = isDarkCanvas ? '#6f8fb5' : '#5c7ea8';
 
   const squircleBg = isDarkCanvas ? '#121211' : '#F4F4F0';
   const squircleBorder = isDarkCanvas ? '#272725' : '#E4E4DF';

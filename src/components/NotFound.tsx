@@ -28,13 +28,13 @@ export const NotFound: React.FC = () => (
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link
             to="/"
-            className="inline-flex h-11 items-center justify-center rounded-lg bg-[var(--sheet-ink)] px-5 text-sm font-semibold text-[#fafafa] transition-colors hover:bg-[#2c2c2c]"
+            className="inline-flex h-11 items-center justify-center rounded-lg bg-[var(--sheet-accent)] px-5 text-sm font-semibold text-[#fafafa] transition-colors hover:bg-[var(--sheet-accent-hover)]"
           >
             Back to the homepage
           </Link>
           <Link
             to="/systems"
-            className="inline-flex h-11 items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white px-5 text-sm font-semibold text-[var(--sheet-ink)] transition-colors hover:border-[#c4c4bf]"
+            className="inline-flex h-11 items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white px-5 text-sm font-semibold text-[var(--sheet-ink)] transition-colors hover:border-[var(--sheet-accent)] hover:text-[var(--sheet-accent)]"
           >
             Browse the systems
           </Link>

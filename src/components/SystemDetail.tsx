@@ -116,7 +116,7 @@ export const SystemDetail: React.FC<SystemDetailProps> = ({ systemId, onBack, on
           <button
             type="button"
             onClick={onBack}
-            className="bl-mono text-[0.625rem] uppercase tracking-[0.14em] text-[#6b6b68] underline decoration-[var(--sheet-rule)] underline-offset-4 transition-colors hover:text-[var(--sheet-ink)] hover:decoration-[var(--sheet-ink)]"
+            className="bl-mono text-[0.625rem] uppercase tracking-[0.14em] text-[var(--sheet-accent)] underline decoration-[var(--sheet-accent)]/35 underline-offset-4 transition-colors hover:decoration-[var(--sheet-accent)]"
           >
             ← Back to systems
           </button>
@@ -260,7 +260,7 @@ export const SystemDetail: React.FC<SystemDetailProps> = ({ systemId, onBack, on
                   <button
                     type="button"
                     onClick={onOpenBooking}
-                    className="mt-3 flex h-12 w-full items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white text-[0.9375rem] font-semibold text-[var(--sheet-ink)] transition-colors hover:border-[#c4c4bf]"
+                    className="mt-3 flex h-12 w-full items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white text-[0.9375rem] font-semibold text-[var(--sheet-ink)] transition-colors hover:border-[var(--sheet-accent)] hover:text-[var(--sheet-accent)]"
                   >
                     Have it run for you instead
                   </button>

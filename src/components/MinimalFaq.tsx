@@ -29,7 +29,7 @@ export const MinimalFaq: React.FC = () => {
               Anything else, email{' '}
               <a
                 href="mailto:sales@botlane.io"
-                className="font-semibold text-[var(--sheet-ink)] underline decoration-[var(--sheet-rule)] underline-offset-4 transition-colors hover:decoration-[var(--sheet-ink)]"
+                className="font-semibold text-[var(--sheet-accent)] underline decoration-[var(--sheet-accent)]/35 underline-offset-4 transition-colors hover:decoration-[var(--sheet-accent)]"
               >
                 sales@botlane.io
               </a>

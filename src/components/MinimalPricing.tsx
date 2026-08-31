@@ -83,7 +83,7 @@ export const MinimalPricing: React.FC<MinimalPricingProps> = ({ onOpenBooking, o
                       i > 0 ? 'border-l border-[var(--sheet-rule)]' : ''
                     } ${
                       active
-                        ? 'bg-[var(--sheet-ink)] text-[#fafafa]'
+                        ? 'bg-[var(--sheet-accent)] text-[#fafafa]'
                         : 'text-[#6b6b68] hover:bg-[var(--sheet-open)] hover:text-[var(--sheet-ink)]'
                     }`}
                   >
@@ -129,7 +129,7 @@ export const MinimalPricing: React.FC<MinimalPricingProps> = ({ onOpenBooking, o
                 <button
                   type="button"
                   onClick={onOpenBooking}
-                  className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-[var(--sheet-ink)] text-[0.9375rem] font-semibold text-[#fafafa] transition-colors duration-200 hover:bg-[#2c2c2c]"
+                  className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-[var(--sheet-accent)] text-[0.9375rem] font-semibold text-[#fafafa] transition-colors duration-200 hover:bg-[var(--sheet-accent-hover)]"
                 >
                   Get the list
                 </button>
@@ -178,7 +178,7 @@ export const MinimalPricing: React.FC<MinimalPricingProps> = ({ onOpenBooking, o
               <button
                 type="button"
                 onClick={onViewSystems}
-                className="inline-flex h-11 shrink-0 items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white px-5 text-sm font-semibold text-[var(--sheet-ink)] transition-colors hover:border-[#c4c4bf]"
+                className="inline-flex h-11 shrink-0 items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white px-5 text-sm font-semibold text-[var(--sheet-ink)] transition-colors hover:border-[var(--sheet-accent)] hover:text-[var(--sheet-accent)]"
               >
                 Browse the systems
               </button>

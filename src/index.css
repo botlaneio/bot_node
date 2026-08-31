@@ -53,6 +53,16 @@
   --sheet-open-line: #d5d5d0;
   --sheet-ink: #101010;
   --sheet-grey: #9d9d99;
+
+  /*
+    One accent, with exactly one job: hue means you can act here. Black still
+    means "past the threshold" and grey means it has not — so no figure, cell,
+    marker or status pip ever reads this variable. Buttons, links and focus
+    only.
+  */
+  --sheet-accent: #1b4d8f;
+  --sheet-accent-hover: #163f75;
+  --sheet-accent-tint: #eef3fa;
 }
 
 .bl-display {
