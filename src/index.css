@@ -142,14 +142,28 @@
   background: var(--sheet-open);
 }
 
-/* Days past the threshold, filled cell by cell across row four. */
+/*
+  Days past the threshold. Two parts, because a role can run more than twenty
+  days over: whole rows below the line, then the remainder across the next row.
+  A single rect only modelled one row, so anything past day eighty overflowed
+  the matrix — which never showed while the figure was pinned to one signal.
+*/
+.bl-post-full {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 0;
+  background: var(--sheet-ink);
+}
+
 .bl-post {
   position: absolute;
   left: 0;
   top: 50%;
+  width: 0;
   height: 16.6667%;
   background: var(--sheet-ink);
-  transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /*

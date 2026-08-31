@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { REAL_SIGNALS, TRACKED_ROLES, THRESHOLD_DAYS } from '../data/botlaneData';
 
@@ -12,8 +12,10 @@ const COLS = 20;
 /** Six rows of twenty. The upper bound of the drawing, in days. */
 const SCALE_DAYS = COLS * 6;
 
-/** The signal drawn in detail. The rest of the roster feeds the title block. */
-const FOCUS = REAL_SIGNALS[0];
+/** How long the count takes, and how long the finished reading holds. */
+const COUNT_MS = 1900;
+const HOLD_MS = 3400;
+const CYCLE_MS = COUNT_MS + HOLD_MS;
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -31,47 +33,99 @@ const rise = (delay: number, reduced: boolean) =>
         transition: { duration: 0.8, delay, ease },
       };
 
-/** Width of the filled region, as a percentage of one row. */
-const fillFor = (days: number) =>
-  days <= THRESHOLD_DAYS ? 0 : ((days - THRESHOLD_DAYS) / COLS) * 100;
+/** One matrix row, as a percentage of the grid's height. */
+const ROW_PCT = 100 / 6;
 
 /**
- * Counts the role's days upward. Cells only begin filling once the count is
- * past the threshold, so the drawing and the number never disagree.
+ * How much of the matrix is filled at a given day count: whole rows below the
+ * threshold, then the remainder across the row after them.
  */
-function useDayCount(target: number, reduced: boolean) {
-  const [days, setDays] = useState(reduced ? target : 0);
+const fillFor = (days: number) => {
+  const past = Math.max(days - THRESHOLD_DAYS, 0);
+  const rows = Math.floor(past / COLS);
+  return {
+    fullHeight: `${rows * ROW_PCT}%`,
+    partTop: `${50 + rows * ROW_PCT}%`,
+    partWidth: `${((past % COLS) / COLS) * 100}%`,
+  };
+};
+
+/**
+ * Cycles the figure through the tracked signals: counts one role's days up
+ * from zero, holds the finished reading, then hands to the next and repeats.
+ *
+ * The matrix is the one element on the page that is about time accumulating,
+ * so it should not settle once and stop. Cycling also restores something the
+ * single-signal drawing gave up — that there is a roster behind it, not one
+ * example.
+ *
+ * The count and the fill are written straight to the DOM. They change every
+ * frame, and putting them in state would re-render the whole hero sixty times
+ * a second; only the signal index is state, and that changes twice a cycle.
+ *
+ * Driven by requestAnimationFrame rather than an interval, so it stops when
+ * the tab is hidden instead of running on unwatched and lurching on return.
+ */
+function useSignalCycle(reduced: boolean, paused: boolean) {
+  const [index, setIndex] = useState(0);
+  const numRef = useRef<HTMLElement>(null);
+  const fullRef = useRef<HTMLDivElement>(null);
+  const partRef = useRef<HTMLDivElement>(null);
+  const elapsed = useRef(0);
+  const indexRef = useRef(0);
 
   useEffect(() => {
-    // Settle immediately rather than relying on the initial state: if the
-    // reduced-motion preference resolves after the first render, the matrix
-    // would otherwise stay empty for good.
+    indexRef.current = index;
+  }, [index]);
+
+  useEffect(() => {
+    const draw = (d: number) => {
+      if (numRef.current) numRef.current.textContent = String(d);
+      const f = fillFor(d);
+      if (fullRef.current) fullRef.current.style.height = f.fullHeight;
+      if (partRef.current) {
+        partRef.current.style.top = f.partTop;
+        partRef.current.style.width = f.partWidth;
+      }
+    };
+
+    // Settle on the first signal and stay there.
     if (reduced) {
-      setDays(target);
+      setIndex(0);
+      draw(REAL_SIGNALS[0].stalledDays);
       return;
     }
 
     let frame = 0;
-    let start: number | null = null;
-    const DURATION = 1900;
+    let last: number | null = null;
 
-    const step = (t: number) => {
-      if (start === null) start = t;
-      const p = Math.min((t - start) / DURATION, 1);
-      setDays(Math.round(target * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) frame = requestAnimationFrame(step);
+    const tick = (now: number) => {
+      const dt = last === null ? 0 : now - last;
+      last = now;
+      if (!paused) elapsed.current += dt;
+
+      const target = REAL_SIGNALS[indexRef.current].stalledDays;
+      const p = Math.min(elapsed.current / COUNT_MS, 1);
+      draw(Math.round(target * (1 - Math.pow(1 - p, 3))));
+
+      if (elapsed.current >= CYCLE_MS) {
+        elapsed.current = 0;
+        setIndex((i) => (i + 1) % REAL_SIGNALS.length);
+      }
+      frame = requestAnimationFrame(tick);
     };
 
-    const hold = setTimeout(() => { frame = requestAnimationFrame(step); }, 700);
-    return () => { clearTimeout(hold); cancelAnimationFrame(frame); };
-  }, [target, reduced]);
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [reduced, paused]);
 
-  return days;
+  return { signal: REAL_SIGNALS[index], index, numRef, fullRef, partRef };
 }
 
 export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
   const reduced = useReducedMotion() ?? false;
-  const days = useDayCount(FOCUS.stalledDays, reduced);
+  const [paused, setPaused] = useState(false);
+  const { signal, index, numRef, fullRef, partRef } = useSignalCycle(reduced, paused);
 
   const qualified = TRACKED_ROLES.filter((r) => r.days >= THRESHOLD_DAYS).length;
 
@@ -197,6 +251,12 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
           <motion.figure
             {...rise(0.46, reduced)}
             className="relative m-0 mt-12 border border-[var(--sheet-rule)] bg-white"
+            /* The figure cycles on its own, so it holds while anyone is
+               actually reading it. */
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+            onFocus={() => setPaused(true)}
+            onBlur={() => setPaused(false)}
           >
             <span className="bl-x" style={{ left: -6, top: -6 }} aria-hidden="true" />
             <span className="bl-x" style={{ right: -6, top: -6 }} aria-hidden="true" />
@@ -204,16 +264,18 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
             <span className="bl-x" style={{ right: -6, bottom: -6 }} aria-hidden="true" />
 
             <figcaption className="flex flex-wrap items-baseline justify-between gap-4 border-b border-[var(--sheet-rule)] px-4 py-3 md:px-7">
-              <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
-                Fig. 01 — {FOCUS.short}, one cell per day
+              <span className="bl-mono text-[0.625rem] uppercase leading-[1.7] tracking-[0.16em] text-[#9a9a96]">
+                Fig. 01 — {signal.short}, one cell per day
+                <span className="block text-[#c4c4bf]">
+                  {signal.funding} · signal {index + 1} of {REAL_SIGNALS.length}
+                  {reduced ? '' : paused ? ' · held' : ''}
+                </span>
               </span>
               <span className="flex items-baseline gap-2">
                 <b
+                  ref={numRef}
                   className="bl-mono text-2xl font-bold leading-none tracking-[-0.045em] tabular-nums text-[var(--sheet-ink)]"
-                  aria-live="polite"
-                >
-                  {days}
-                </b>
+                />
                 <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
                   days open
                 </span>
@@ -230,16 +292,11 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
                 <div
                   className="bl-cells"
                   role="img"
-                  aria-label={`One hundred and twenty cells, one per day. The first ${THRESHOLD_DAYS} are open; days ${THRESHOLD_DAYS + 1} to ${FOCUS.stalledDays} are filled — ${FOCUS.stalledDays - THRESHOLD_DAYS} days past the threshold, so the contact is released.`}
+                  aria-label={`${signal.short}: one hundred and twenty cells, one per day. The first ${THRESHOLD_DAYS} are open; days ${THRESHOLD_DAYS + 1} to ${signal.stalledDays} are filled — ${signal.stalledDays - THRESHOLD_DAYS} days past the threshold, so the contact is released.`}
                 >
                   <div className="bl-pre" />
-                  <div
-                    className="bl-post"
-                    style={{
-                      width: `${fillFor(days)}%`,
-                      transition: reduced ? 'none' : undefined,
-                    }}
-                  />
+                  <div ref={fullRef} className="bl-post-full" />
+                  <div ref={partRef} className="bl-post" />
                   <div className="bl-cell-lines" />
 
                   <div className="bl-horizon" aria-hidden="true">
@@ -270,9 +327,9 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
                 </span>
               </div>
               <p className="m-0 text-xs text-[#6b6b68]">
-                {FOCUS.role} &nbsp;&rarr;&nbsp;{' '}
+                {signal.role} &nbsp;&rarr;&nbsp;{' '}
                 <b className="font-semibold text-[var(--sheet-ink)]">
-                  {FOCUS.contactName}, {FOCUS.contactRole}
+                  {signal.contactName}, {signal.contactRole}
                 </b>
               </p>
             </div>
