@@ -36,6 +36,28 @@ const COLUMNS = [
   },
 ];
 
+
+/**
+ * Contact glyphs, drawn inline rather than pulled from an icon set. The rest
+ * of the sheet is icon-free, so these two exist only because a phone number
+ * and a WhatsApp number need telling apart at a glance.
+ */
+const PhoneGlyph: React.FC = () => (
+  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor"
+       strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+       className="shrink-0" aria-hidden="true">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.2 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z" />
+  </svg>
+);
+
+const WhatsAppGlyph: React.FC = () => (
+  <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"
+       className="shrink-0" aria-hidden="true">
+    <path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.26-.47-2.39-1.48-.89-.79-1.48-1.76-1.66-2.06-.17-.3-.02-.46.13-.6.14-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.91-2.2-.25-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.03 1.02-1.03 2.48 0 1.46 1.06 2.88 1.21 3.07.15.2 2.1 3.2 5.08 4.49.7.3 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.42-.08-.12-.27-.2-.57-.35" />
+    <path d="M12.05 21.79a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26C2.17 6.44 6.6 2 12.05 2a9.82 9.82 0 0 1 6.99 2.9 9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.88 9.9m8.41-18.3A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.69 1.44c6.55 0 11.89-5.33 11.89-11.89a11.82 11.82 0 0 0-3.48-8.41Z" />
+  </svg>
+);
+
 /** Shared by both inputs — flat and hairlined, like every other panel. */
 const FIELD =
   'h-11 w-full border border-white/15 bg-white/[0.04] px-3.5 text-sm text-white outline-none transition-colors duration-200 placeholder:text-white/35 focus:border-white/35 focus:bg-white/[0.07] disabled:opacity-60';
@@ -97,6 +119,40 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                   Outbound architecture for DevOps consultancies. Built on public, dated hiring
                   signals rather than guesswork.
                 </p>
+
+                {/* address, not a div: this is the contact information for the
+                    site, and the element says so. not-italic because address
+                    is italic by default. */}
+                <address className="mt-8 not-italic">
+                  <span className="bl-mono block text-[0.625rem] uppercase tracking-[0.16em] text-white/40">
+                    Registered office
+                  </span>
+                  <p className="mt-2.5 text-[13px] leading-[1.7] text-white/60">
+                    30 N Gould St Ste R
+                    <br />
+                    Sheridan, WY 82801
+                  </p>
+
+                  <div className="mt-4 flex flex-col gap-2.5">
+                    <a
+                      href="tel:+13072185175"
+                      className="inline-flex w-fit items-center gap-2.5 text-[13px] text-white/70 transition-colors hover:text-white"
+                    >
+                      <PhoneGlyph />
+                      <span>+1 307 218 5175</span>
+                    </a>
+                    <a
+                      href="https://wa.me/919979972714"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex w-fit items-center gap-2.5 text-[13px] text-white/70 transition-colors hover:text-white"
+                    >
+                      <WhatsAppGlyph />
+                      <span>+91 9979972714</span>
+                      <span className="sr-only">on WhatsApp</span>
+                    </a>
+                  </div>
+                </address>
               </div>
 
               <div className="mt-12 lg:mt-24">
