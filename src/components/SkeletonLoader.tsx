@@ -10,7 +10,7 @@ export const SkeletonLoader: React.FC = () => {
       className="fixed inset-0 z-[100] bg-[#f2f2f0] flex flex-col pointer-events-none overflow-hidden"
     >
       {/* Navbar Skeleton */}
-      <div className="flex h-16 items-center justify-between px-5 md:px-8 max-w-[1180px] w-full mx-auto">
+      <div className="flex h-16 items-center justify-between px-6 md:px-12 max-w-[1240px] w-full mx-auto">
         <div className="flex items-center gap-2">
           <div className="w-5 h-5 rounded-md bg-[#e3e3e0] animate-pulse" />
           <div className="w-20 h-4 rounded bg-[#e3e3e0] animate-pulse" />
@@ -25,7 +25,7 @@ export const SkeletonLoader: React.FC = () => {
       </div>
 
       {/* Hero Skeleton */}
-      <div className="flex-1 w-full max-w-[1180px] mx-auto px-5 md:px-8 pt-24 md:pt-32 flex flex-col items-center">
+      <div className="flex-1 w-full max-w-[1240px] mx-auto px-6 md:px-12 pt-24 md:pt-32 flex flex-col items-center">
         {/* Pill */}
         <div className="w-48 h-7 rounded-full bg-[#e3e3e0] animate-pulse mb-8" />
         

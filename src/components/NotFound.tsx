@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 export const NotFound: React.FC = () => (
-  <section className="px-5 md:px-8 max-w-[1180px] mx-auto pt-40 pb-32 text-center">
+  <section className="px-6 md:px-12 max-w-[1240px] mx-auto pt-40 pb-32 text-center">
     <span className="eyebrow text-[var(--color-ink-muted)]">404</span>
     <h1 className="mt-4 text-3xl md:text-4xl font-medium tracking-tight text-[#0d0d0d]">
       That page doesn't exist.

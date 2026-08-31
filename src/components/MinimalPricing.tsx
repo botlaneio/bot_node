@@ -28,7 +28,7 @@ export const MinimalPricing: React.FC<MinimalPricingProps> = ({ onOpenBooking, o
 
   return (
     <section id="pricing" className="scroll-mt-24 py-16 md:py-24 border-b border-[#e3e3e0]">
-      <div className="max-w-[1180px] mx-auto px-5 md:px-8">
+      <div className="max-w-[1240px] mx-auto px-6 md:px-12">
         {/* Section Header */}
         <div className="flex flex-col gap-6">
           <span className="eyebrow inline-flex w-fit items-center gap-2 rounded-[var(--radius-control)] border px-3 py-1.5 mx-auto border-[#e3e3e0] bg-white text-[#6b6b68]">

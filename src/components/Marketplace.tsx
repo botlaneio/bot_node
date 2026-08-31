@@ -41,7 +41,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
     <div className="bg-[var(--color-page)] pt-24 pb-16 md:pb-24 border-b border-[#e3e3e0]">
       
       {/* 01 - HERO SECTION */}
-      <section className="px-5 md:px-8 max-w-[1180px] mx-auto text-center pt-12 pb-16">
+      <section className="px-6 md:px-12 max-w-[1240px] mx-auto text-center pt-12 pb-16">
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -72,7 +72,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
       </section>
 
       {/* 02 - FEATURED SYSTEMS */}
-      <section className="px-5 md:px-8 max-w-[1180px] mx-auto mb-24">
+      <section className="px-6 md:px-12 max-w-[1240px] mx-auto mb-24">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-xl font-medium tracking-tight text-[var(--color-ink)]">Featured Deployments</h2>
           <span className="text-sm font-medium text-[var(--color-ink-subtle)]">Highest ROI</span>
@@ -107,7 +107,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
       </section>
 
       {/* 03 - FILTER BAR & SEARCH */}
-      <section className="px-5 md:px-8 max-w-[1180px] mx-auto mb-10 sticky top-[72px] z-40 bg-[var(--color-page)]/80 backdrop-blur-xl py-4 border-b border-[var(--color-line)]/50">
+      <section className="px-6 md:px-12 max-w-[1240px] mx-auto mb-10 sticky top-[72px] z-40 bg-[var(--color-page)]/80 backdrop-blur-xl py-4 border-b border-[var(--color-line)]/50">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex-1 min-w-0 flex items-center overflow-x-auto pb-2 md:pb-0 scrollbar-hide gap-2 pr-4">
             {CATEGORIES.map(cat => (
@@ -139,7 +139,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
       </section>
 
       {/* 04 - LIBRARY GRID */}
-      <section className="px-5 md:px-8 max-w-[1180px] mx-auto mb-32 min-h-[400px]">
+      <section className="px-6 md:px-12 max-w-[1240px] mx-auto mb-32 min-h-[400px]">
         {filteredLibrary.length === 0 ? (
           <div className="text-center py-24 border border-dashed border-[var(--color-line-strong)] rounded-[var(--radius-card)] bg-[var(--color-sunken)]">
             <p className="text-[var(--color-ink-muted)]">No systems found matching your criteria.</p>
@@ -199,7 +199,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
       </section>
 
       {/* 05 - TECHNICAL PROVISIONING (The Deliverables & Security) */}
-      <section className="px-5 md:px-8 max-w-[1180px] mx-auto mb-32">
+      <section className="px-6 md:px-12 max-w-[1240px] mx-auto mb-32">
         <div className="mb-8">
           <h2 className="text-2xl font-medium tracking-tight text-[var(--color-ink)] mb-2">Technical Provisioning</h2>
           <p className="text-sm text-[var(--color-ink-muted)]">What you actually receive when acquiring a system. Retainer clients receive all of it, for every system, as part of the engagement.</p>
@@ -265,7 +265,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
       </section>
 
       {/* 06 - ENTERPRISE SECURITY & COMPLIANCE */}
-      <section className="px-5 md:px-8 max-w-[1180px] mx-auto mb-32">
+      <section className="px-6 md:px-12 max-w-[1240px] mx-auto mb-32">
         <div className="bg-[var(--color-page)] border-y border-[var(--color-line)] py-20 relative overflow-hidden">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[var(--color-ink)]/5 blur-[120px] rounded-[100%] pointer-events-none" />
           
@@ -317,7 +317,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
       </section>
 
       {/* 07 - MULTI-TENANT CTA */}
-      <section className="px-5 md:px-8 max-w-[1180px] mx-auto">
+      <section className="px-6 md:px-12 max-w-[1240px] mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

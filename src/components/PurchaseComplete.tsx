@@ -21,7 +21,7 @@ export const PurchaseComplete: React.FC = () => {
 
   if (!paid) {
     return (
-      <section className="px-5 md:px-8 max-w-[1180px] mx-auto pt-40 pb-32 text-center">
+      <section className="px-6 md:px-12 max-w-[1240px] mx-auto pt-40 pb-32 text-center">
         <h1 className="text-2xl font-medium tracking-tight text-[#0d0d0d]">
           Nothing to confirm here.
         </h1>

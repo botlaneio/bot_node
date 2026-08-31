@@ -100,7 +100,7 @@ export const MinimalStats: React.FC = () => {
       };
 
   return (
-    <section className="bl-display relative bg-[var(--sheet-page)] px-[14px]">
+    <section className="bl-display relative bg-[var(--sheet-page)]">
       <div className="bl-sheet relative mx-auto max-w-[1240px] bg-[var(--sheet-column)]">
         <div className="relative px-6 py-14 md:px-12 md:py-16">
           <span className="bl-x" style={{ left: -6, bottom: -6 }} aria-hidden="true" />

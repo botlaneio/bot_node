@@ -49,7 +49,7 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
 
   return (
     <footer className="bg-[#0a0a0a] pt-16 pb-8 md:pt-24 md:pb-10 text-[#fafafa]">
-      <div className="max-w-[1180px] mx-auto px-6 md:px-8">
+      <div className="max-w-[1240px] mx-auto px-6 md:px-12">
         <div className="relative">
           
           {/* Main Content Grid */}

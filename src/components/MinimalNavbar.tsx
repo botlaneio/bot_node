@@ -44,13 +44,13 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking }) =
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 border-b ${
+      className={`fixed inset-x-0 top-0 z-50 px-[14px] transition-colors duration-300 border-b ${
         scrolled
           ? 'border-[var(--sheet-rule)] bg-[var(--sheet-column)]/90 backdrop-blur-md'
           : 'border-transparent bg-transparent'
       }`}
     >
-      <div className="max-w-[1180px] mx-auto px-5 md:px-8">
+      <div className="max-w-[1240px] mx-auto px-6 md:px-12">
         <nav aria-label="Primary" className="flex h-16 items-center justify-between gap-8">
           {/* Brand Logo */}
           <Link
@@ -135,7 +135,7 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking }) =
       {/* Mobile Drawer */}
       {mobileOpen && (
         <div className="border-t border-[#e3e3e0] bg-[#f2f2f0] md:hidden">
-          <div className="max-w-[1180px] mx-auto px-5 flex flex-col py-2">
+          <div className="max-w-[1240px] mx-auto px-6 flex flex-col py-2">
             <a
               className="text-sm font-medium border-b border-[#e3e3e0] py-4 text-[#6b6b68] hover:text-[#0d0d0d] transition-colors"
               href="/#features"

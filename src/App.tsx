@@ -186,12 +186,14 @@ export default function App() {
   if (loading) return <SkeletonLoader />;
 
   return (
-    <div className="min-h-screen font-sans text-[#0d0d0d] selection:bg-[#0a0a0a] selection:text-white">
+    <div className="min-h-screen text-[#0d0d0d] selection:bg-[#0a0a0a] selection:text-white">
       <ScrollManager />
       <ProgressBar />
       <MinimalNavbar onOpenBooking={openBooking} />
 
-      <main className="bg-[#f2f2f0]">
+      {/* px-[14px]: the drawing sheet's inset, applied once so every
+          section aligns to the same origin. */}
+      <main className="bg-[#f2f2f0] px-[14px]">
         <Suspense fallback={<div className="min-h-[60vh]" />}>
           <Routes>
             <Route path="/" element={<LandingPage onOpenBooking={openBooking} />} />

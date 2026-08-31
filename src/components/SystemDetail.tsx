@@ -32,7 +32,7 @@ export const SystemDetail: React.FC<SystemDetailProps> = ({ systemId, onBack, on
 
   return (
     <div className="bg-[var(--color-page)] pt-24 pb-16 md:pb-32 border-b border-[#e3e3e0]">
-      <div className="max-w-[1180px] mx-auto px-5 md:px-8">
+      <div className="max-w-[1240px] mx-auto px-6 md:px-12">
         
         {/* Back Button */}
         <button 

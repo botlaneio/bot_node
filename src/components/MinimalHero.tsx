@@ -76,7 +76,7 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
   const qualified = TRACKED_ROLES.filter((r) => r.days >= THRESHOLD_DAYS).length;
 
   return (
-    <section className="bl-display relative overflow-hidden bg-[var(--sheet-page)] px-[14px]">
+    <section className="bl-display relative overflow-hidden bg-[var(--sheet-page)]">
       <div className="bl-sheet relative mx-auto max-w-[1240px] bg-[var(--sheet-column)]">
         {/* Column rules: the paper is cellular whether or not a cell is used. */}
         <div className="bl-rules pointer-events-none absolute inset-0 z-0" aria-hidden="true">
