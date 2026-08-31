@@ -1,20 +1,38 @@
 <!doctype html>
-<html lang="en" class="dark scroll-smooth">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!--
+      Title, description, canonical and og:url are set per route at runtime
+      (see useDocumentMeta in src/App.tsx). The values here are the defaults
+      for the landing page and the fallback for anything that renders before
+      the router has resolved.
+    -->
     <title>Botlane — Outbound Infrastructure for DevOps Consultancies</title>
     <meta name="description" content="Outbound infrastructure for DevOps consultancies. We find companies with stalled infrastructure roles and put you in front of them." />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+
     <meta property="og:title" content="Botlane — Outbound Infrastructure for DevOps Consultancies" />
     <meta property="og:description" content="Turn-key outbound infrastructure that connects DevOps consultancies with companies struggling to hire platform engineers." />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Botlane" />
+    <meta property="og:locale" content="en_GB" />
   </head>
-  <body class="bg-[#FBFBFA] text-[#1A1A1A] font-['Plus_Jakarta_Sans',sans-serif] antialiased selection:bg-[#1A1A1A] selection:text-white">
+  <!--
+    Colours and typography come from the tokens in src/index.css rather than
+    utilities here. They used to be set in both places and disagreed: the
+    utilities won, so the page rendered #FBFBFA over the --color-page it was
+    supposed to use. The Plus Jakarta Sans class named a font that is never
+    loaded, so it silently fell back anyway.
+  -->
+  <body class="antialiased selection:bg-[#0a0a0a] selection:text-[#fafafa]">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
