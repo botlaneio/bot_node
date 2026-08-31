@@ -328,20 +328,20 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                     </span>
                   </li>
                   <li>
-                    <span className="flex items-baseline gap-2 text-[14px] text-white/35">
+                    <a
+                      className="text-[14px] text-white/70 transition-colors hover:text-white"
+                      href="/privacy"
+                    >
                       Privacy policy
-                      <span className="bl-mono text-[0.5rem] uppercase tracking-[0.16em] text-white/25">
-                        soon
-                      </span>
-                    </span>
+                    </a>
                   </li>
                   <li>
-                    <span className="flex items-baseline gap-2 text-[14px] text-white/35">
+                    <a
+                      className="text-[14px] text-white/70 transition-colors hover:text-white"
+                      href="/terms"
+                    >
                       Terms of service
-                      <span className="bl-mono text-[0.5rem] uppercase tracking-[0.16em] text-white/25">
-                        soon
-                      </span>
-                    </span>
+                    </a>
                   </li>
                 </ul>
               </div>

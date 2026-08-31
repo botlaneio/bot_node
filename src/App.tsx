@@ -15,6 +15,8 @@ import { ApplicationModal } from './components/ApplicationModal';
 import { NotFound } from './components/NotFound';
 import { PurchaseComplete } from './components/PurchaseComplete';
 import { ALL_SYSTEMS } from './data/systemsData';
+import { LegalPage } from './components/LegalPage';
+import { PRIVACY, TERMS } from './data/legalData';
 
 // Split out of the main bundle: neither is needed to render the landing page.
 const Marketplace = lazy(() => import('./components/Marketplace'));
@@ -122,6 +124,36 @@ function LandingPage({ onOpenBooking }: { onOpenBooking: () => void }) {
   );
 }
 
+function PrivacyPage() {
+  useDocumentMeta(
+    `Privacy — ${SITE_NAME}`,
+    'What Botlane collects, why, who processes it, and how long it is kept. No analytics, no cookies, no tracking.'
+  );
+  return (
+    <LegalPage
+      eyebrow="Legal"
+      title="Privacy policy"
+      standfirst="We collect nothing until you send it. This document says exactly what is stored, who touches it, and how to have it removed."
+      clauses={PRIVACY}
+    />
+  );
+}
+
+function TermsPage() {
+  useDocumentMeta(
+    `Terms — ${SITE_NAME}`,
+    'The terms covering Botlane retainers and system licences: fees, cancellation, what is promised and what is not.'
+  );
+  return (
+    <LegalPage
+      eyebrow="Legal"
+      title="Terms of service"
+      standfirst="What we commit to, what we deliberately do not promise, and the terms that apply to a retainer or a system licence."
+      clauses={TERMS}
+    />
+  );
+}
+
 function MarketplacePage({ onOpenBooking }: { onOpenBooking: () => void }) {
   useDocumentMeta(
     `Systems — ${SITE_NAME}`,
@@ -205,6 +237,8 @@ export default function App() {
             <Route path="/systems/:systemId/complete" element={<PurchaseCompletePage />} />
             {/* Legacy path kept so older shared links still resolve. */}
             <Route path="/marketplace" element={<Navigate to="/systems" replace />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
