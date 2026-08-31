@@ -304,3 +304,48 @@ false success. Then check:
 
 The window is an hour, so either wait it out or delete the row to reset while
 testing.
+
+---
+
+# Database schema in the repo
+
+Two SQL files live in `supabase/`. Both are idempotent and independent, so
+they can be run in either order and re-run safely. Together they are what you
+would replay to rebuild this database's configuration from scratch.
+
+| File | What it does |
+|---|---|
+| [`supabase/rate-limits.sql`](supabase/rate-limits.sql) | Creates `rate_limits` and `check_rate_limit`, which the four public endpoints call. |
+| [`supabase/rls-lockdown.sql`](supabase/rls-lockdown.sql) | Closes `anon` access to the NextAuth/Prisma tables. |
+
+## What the lockdown fixed
+
+Nine tables — `User`, `Account`, `Session`, `VerificationToken`, `Lead`,
+`Project`, `Event`, `AuditLog` and `_prisma_migrations` — had row level
+security disabled, no policies, and table grants to `anon` and
+`authenticated`. The publishable anon key ships in frontend JavaScript, so
+anyone holding it could read and write those tables over PostgREST. `User`
+held real rows.
+
+Enabling RLS there does not break the application that owns those tables. All
+nine are owned by `postgres` and none has `FORCE ROW LEVEL SECURITY` set, and
+a table owner bypasses RLS by default — so a Prisma app on a direct Postgres
+connection is unaffected. Only `anon` and `authenticated` via PostgREST are
+blocked, which is precisely the exposure.
+
+The fix is applied at two layers on purpose: the grants are revoked *and* RLS
+is enabled with no policies, so nothing gets through even if a grant is
+restored later by a default-privileges rule.
+
+`customers`, `orders`, `payments`, `engagements` and `documents` intentionally
+keep an `authenticated` grant — each has a policy so a signed-in user reads
+only their own rows. Those are configured rather than exposed, and neither
+file touches them.
+
+## Checking it holds
+
+The verification query is in the comment at the foot of `rls-lockdown.sql`.
+It should return **zero rows**: nothing in the `public` schema reachable by
+`anon`, and nothing with RLS switched off. Worth re-running after any
+migration that creates a table, since a new table picks up whatever the
+database's default privileges grant.
