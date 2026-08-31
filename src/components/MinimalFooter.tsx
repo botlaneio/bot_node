@@ -12,7 +12,7 @@ interface MinimalFooterProps {
  *
  * Giving one of these a page is just a matter of adding its href.
  */
-type FooterLink = { label: string; href?: string };
+type FooterLink = { label: string; href?: string; action?: 'booking' };
 
 const COLUMNS: { heading: string; links: FooterLink[] }[] = [
   {
@@ -42,6 +42,16 @@ const COLUMNS: { heading: string; links: FooterLink[] }[] = [
       { label: 'Knowledge base', href: '/#faq' },
       { label: 'API reference' },
       { label: 'Deployment guides', href: '/systems' },
+    ],
+  },
+  {
+    heading: 'Company',
+    links: [
+      { label: 'Contact sales', action: 'booking' },
+      { label: 'sales@botlane.io', href: 'mailto:sales@botlane.io' },
+      { label: 'About' },
+      { label: 'Privacy policy', href: '/privacy' },
+      { label: 'Terms of service', href: '/terms' },
     ],
   },
 ];
@@ -276,7 +286,15 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                   <ul className="flex flex-col gap-4">
                     {col.links.map((l) => (
                       <li key={l.label}>
-                        {l.href ? (
+                        {l.action === 'booking' ? (
+                          <button
+                            type="button"
+                            onClick={onOpenBooking}
+                            className="text-left text-[14px] text-white/70 transition-colors hover:text-white"
+                          >
+                            {l.label}
+                          </button>
+                        ) : l.href ? (
                           <a
                             className="text-[14px] text-white/70 transition-colors hover:text-white"
                             href={l.href}
@@ -284,9 +302,16 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                             {l.label}
                           </a>
                         ) : (
-                          <span className="flex items-baseline gap-2 text-[14px] text-white/35">
+                          /* Inline, not flex. As a flex container this row
+                             measured 21px against a link row's 24px, so every
+                             column fell out of step after the first one — and
+                             the badge, being a flex item, took width from the
+                             label and forced two-word entries to wrap beneath
+                             it. Inline makes the row the same height as a link
+                             and lets the badge flow after the last word. */
+                          <span className="text-[14px] text-white/35">
                             {l.label}
-                            <span className="bl-mono text-[0.5rem] uppercase tracking-[0.16em] text-white/25">
+                            <span className="bl-mono ml-2 whitespace-nowrap text-[0.5rem] uppercase tracking-[0.16em] text-white/25">
                               soon
                             </span>
                           </span>
@@ -297,54 +322,6 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                 </div>
               ))}
 
-              <div>
-                <h3 className="bl-mono mb-6 text-[0.625rem] uppercase tracking-[0.16em] text-white/40">
-                  Company
-                </h3>
-                <ul className="flex flex-col gap-4">
-                  <li>
-                    <button
-                      type="button"
-                      onClick={onOpenBooking}
-                      className="text-left text-[14px] text-white/70 transition-colors hover:text-white"
-                    >
-                      Contact sales
-                    </button>
-                  </li>
-                  <li>
-                    <a
-                      className="text-[14px] text-white/70 transition-colors hover:text-white"
-                      href="mailto:sales@botlane.io"
-                    >
-                      sales@botlane.io
-                    </a>
-                  </li>
-                  <li>
-                    <span className="flex items-baseline gap-2 text-[14px] text-white/35">
-                      About
-                      <span className="bl-mono text-[0.5rem] uppercase tracking-[0.16em] text-white/25">
-                        soon
-                      </span>
-                    </span>
-                  </li>
-                  <li>
-                    <a
-                      className="text-[14px] text-white/70 transition-colors hover:text-white"
-                      href="/privacy"
-                    >
-                      Privacy policy
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      className="text-[14px] text-white/70 transition-colors hover:text-white"
-                      href="/terms"
-                    >
-                      Terms of service
-                    </a>
-                  </li>
-                </ul>
-              </div>
             </div>
           </div>
 
