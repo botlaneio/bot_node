@@ -22,13 +22,13 @@ export const PurchaseComplete: React.FC = () => {
   if (!paid) {
     return (
       <section className="px-6 md:px-12 max-w-[1240px] mx-auto pt-40 pb-32 text-center">
-        <h1 className="text-2xl font-medium tracking-tight text-[#0d0d0d]">
+        <h1 className="text-2xl font-medium tracking-tight text-[var(--sheet-ink)]">
           Nothing to confirm here.
         </h1>
         <p className="mt-3 text-[#6b6b68]">This page appears after a completed purchase.</p>
         <Link
           to="/systems"
-          className="mt-8 inline-flex h-11 items-center justify-center rounded-[var(--radius-control)] bg-[#0a0a0a] px-5 text-sm font-medium text-white"
+          className="mt-8 inline-flex h-11 items-center justify-center rounded-lg bg-[var(--sheet-ink)] px-5 text-sm font-medium text-white"
         >
           Browse the systems
         </Link>
@@ -38,12 +38,12 @@ export const PurchaseComplete: React.FC = () => {
 
   return (
     <section className="px-5 md:px-8 max-w-[640px] mx-auto pt-40 pb-32">
-      <div className="rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-white p-8 md:p-10">
-        <div className="grid size-12 place-items-center rounded-full bg-[var(--color-invert)] text-[var(--color-ink-invert)]">
+      <div className="border border-[var(--sheet-rule)] bg-white p-8 md:p-10">
+        <div className="grid size-12 place-items-center rounded-full bg-[var(--sheet-ink)] text-[#fafafa]">
           <Check className="w-6 h-6" />
         </div>
 
-        <h1 className="mt-6 text-2xl md:text-3xl font-medium tracking-tight text-[#0d0d0d]">
+        <h1 className="mt-6 text-2xl md:text-3xl font-medium tracking-tight text-[var(--sheet-ink)]">
           Payment received{system ? ` for ${system.name}` : ''}.
         </h1>
         <p className="mt-3 text-[15px] leading-relaxed text-[#6b6b68]">
@@ -52,11 +52,11 @@ export const PurchaseComplete: React.FC = () => {
 
         <ul className="mt-8 space-y-5">
           <li className="flex items-start gap-3">
-            <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-[var(--radius-control)] bg-[#0a0a0a] text-white">
+            <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg bg-[var(--sheet-ink)] text-white">
               <Github className="w-3.5 h-3.5" />
             </span>
             <div>
-              <p className="text-sm font-medium text-[#0d0d0d]">A GitHub invitation</p>
+              <p className="text-sm font-medium text-[var(--sheet-ink)]">A GitHub invitation</p>
               <p className="mt-1 text-sm leading-relaxed text-[#6b6b68]">
                 Sent to the username you gave at checkout. Accept it to get the repository,
                 Dockerfile, and integration runbook.
@@ -64,11 +64,11 @@ export const PurchaseComplete: React.FC = () => {
             </div>
           </li>
           <li className="flex items-start gap-3">
-            <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-[var(--radius-control)] bg-[#0a0a0a] text-white">
+            <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg bg-[var(--sheet-ink)] text-white">
               <Mail className="w-3.5 h-3.5" />
             </span>
             <div>
-              <p className="text-sm font-medium text-[#0d0d0d]">A confirmation email</p>
+              <p className="text-sm font-medium text-[var(--sheet-ink)]">A confirmation email</p>
               <p className="mt-1 text-sm leading-relaxed text-[#6b6b68]">
                 With your receipt from Stripe and the same access details.
               </p>
@@ -76,21 +76,21 @@ export const PurchaseComplete: React.FC = () => {
           </li>
         </ul>
 
-        <p className="mt-8 rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-sunken)] p-4 text-sm leading-relaxed text-[#6b6b68]">
-          Nothing after ten minutes? Email <strong className="text-[#0d0d0d]">sales@botlane.io</strong> and
+        <p className="mt-8 rounded-lg border border-[var(--sheet-rule)] bg-[var(--sheet-open)] p-4 text-sm leading-relaxed text-[#6b6b68]">
+          Nothing after ten minutes? Email <strong className="text-[var(--sheet-ink)]">sales@botlane.io</strong> and
           I'll sort it manually. Your payment is recorded either way.
         </p>
 
         <div className="mt-8 flex flex-col sm:flex-row gap-3">
           <Link
             to="/systems"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-[var(--radius-control)] bg-[#0a0a0a] px-5 text-sm font-medium text-white transition-colors hover:bg-[#242424]"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[var(--sheet-ink)] px-5 text-sm font-medium text-white transition-colors hover:bg-[#242424]"
           >
             Browse more systems <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             to="/"
-            className="inline-flex h-11 items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] px-5 text-sm font-medium text-[#0d0d0d] transition-colors hover:bg-[var(--color-sunken)]"
+            className="inline-flex h-11 items-center justify-center rounded-lg border border-[var(--sheet-rule)] px-5 text-sm font-medium text-[var(--sheet-ink)] transition-colors hover:bg-[var(--sheet-open)]"
           >
             Back to the homepage
           </Link>

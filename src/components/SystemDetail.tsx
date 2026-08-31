@@ -1,7 +1,5 @@
-import { BuySystem } from './BuySystem';
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
-import { ArrowLeft, Check, Terminal, Zap, Server, Code, FileJson, Layers } from 'lucide-react';
+import { BuySystem } from './BuySystem';
 import { FEATURED_SYSTEMS, LIBRARY, SystemData } from '../data/systemsData';
 
 interface SystemDetailProps {
@@ -9,6 +7,71 @@ interface SystemDetailProps {
   onBack: () => void;
   onOpenBooking: () => void;
 }
+
+const DEFAULT_FEATURES = [
+  'Zero-maintenance architecture',
+  'Fully white-labeled for your agency',
+  'Seamless CI/CD integration',
+  'Enterprise-grade security defaults',
+  'Customizable webhooks & alerts',
+  'Comprehensive documentation included',
+];
+
+/** A titled block on the sheet. Sections only render when they have content. */
+const Block: React.FC<{ title: string; note?: string; children: React.ReactNode }> = ({
+  title,
+  note,
+  children,
+}) => (
+  <section className="relative border border-[var(--sheet-rule)] bg-white">
+    <div className="border-b border-[var(--sheet-rule)] px-4 py-3 md:px-6">
+      <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
+        {title}
+      </span>
+    </div>
+    {note ? (
+      <p className="border-b border-[var(--sheet-rule)] px-4 py-3.5 text-sm leading-relaxed text-[#6b6b68] md:px-6">
+        {note}
+      </p>
+    ) : null}
+    {children}
+  </section>
+);
+
+/** Hairline rows carrying a marker: filled is affirmed, open is not. */
+const MarkedList: React.FC<{ items: string[]; affirmed?: boolean; ordered?: boolean }> = ({
+  items,
+  affirmed = true,
+  ordered = false,
+}) => {
+  const Tag = ordered ? 'ol' : 'ul';
+  return (
+    <Tag className="m-0">
+      {items.map((item, i) => (
+        <li
+          key={item}
+          className="flex items-start gap-3.5 border-b border-[var(--sheet-rule-soft)] px-4 py-3 last:border-b-0 md:px-6"
+        >
+          {ordered ? (
+            <span className="bl-mono mt-[0.15rem] w-5 shrink-0 text-[0.6875rem] tabular-nums text-[#9a9a96]">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+          ) : (
+            <span
+              className={`mt-[0.45rem] block size-2 shrink-0 ${
+                affirmed
+                  ? 'bg-[var(--sheet-ink)]'
+                  : 'border border-[var(--sheet-open-line)] bg-white'
+              }`}
+              aria-hidden="true"
+            />
+          )}
+          <span className="text-[0.9375rem] leading-relaxed text-[var(--sheet-ink)]">{item}</span>
+        </li>
+      ))}
+    </Tag>
+  );
+};
 
 export const SystemDetail: React.FC<SystemDetailProps> = ({ systemId, onBack, onOpenBooking }) => {
   const [system, setSystem] = useState<SystemData | null>(null);
@@ -18,272 +81,209 @@ export const SystemDetail: React.FC<SystemDetailProps> = ({ systemId, onBack, on
     setTimeout(() => {
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }, 10);
-    const found = [...FEATURED_SYSTEMS, ...LIBRARY].find(s => s.id === systemId);
+    const found = [...FEATURED_SYSTEMS, ...LIBRARY].find((s) => s.id === systemId);
     setSystem(found || null);
   }, [systemId]);
 
   if (!system) {
     return (
-      <div className="min-h-screen pt-32 pb-24 flex items-center justify-center bg-[var(--color-page)]">
-        <p className="text-[#a3a3a0]">System not found.</p>
+      <div className="bl-display flex min-h-screen items-center justify-center bg-[var(--sheet-page)] pt-32 pb-24">
+        <p className="text-[#6b6b68]">System not found.</p>
       </div>
     );
   }
 
+  const specs = [
+    ['Built for', system.builtFor || 'DevOps consultancies'],
+    ['Connects to', system.connectsTo || 'AWS, GCP, Azure'],
+    ['Output', system.output || 'Custom dashboards'],
+    ['Deployment', system.deployment || '< 1 hour'],
+  ];
+
   return (
-    <div className="bg-[var(--color-page)] pt-24 pb-16 md:pb-32 border-b border-[#e3e3e0]">
-      <div className="max-w-[1240px] mx-auto px-6 md:px-12">
-        
-        {/* Back Button */}
-        <button 
-          onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors mb-10"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Systems
-        </button>
+    <div className="bl-display relative bg-[var(--sheet-page)]">
+      <div className="bl-sheet relative mx-auto max-w-[1240px] bg-[var(--sheet-column)]">
+        <div className="bl-rules pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+          <i style={{ left: '16.666%' }} /><i style={{ left: '33.333%' }} />
+          <i style={{ left: '50%' }} /><i style={{ left: '66.666%' }} />
+          <i style={{ left: '83.333%' }} />
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-12 lg:gap-20">
-          
-          {/* Left Column: Details */}
-          <div>
-            <span className="eyebrow inline-flex items-center gap-2 rounded-[var(--radius-control)] border px-3 py-1.5 border-[var(--color-line)] bg-white text-[var(--color-ink-muted)] mb-6 shadow-sm">
-              {system.category}
-            </span>
-            <h1 className="text-4xl md:text-5xl font-medium tracking-tight text-[var(--color-ink)] mb-6">
-              {system.name}
-            </h1>
-            
-            <p className="text-xl text-[var(--color-ink-muted)] leading-relaxed mb-12">
-              {system.longDescription || system.description || system.solution || "An enterprise-grade system designed specifically for DevOps consultancies."}
-            </p>
+        <div className="relative z-10 px-6 pt-28 pb-16 md:px-12 md:pt-32 md:pb-24">
+          <span className="bl-x" style={{ left: -6, bottom: -6 }} aria-hidden="true" />
+          <span className="bl-x" style={{ right: -6, bottom: -6 }} aria-hidden="true" />
 
-            <div className="space-y-12">
-              {system.problem && (
-                <section>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-muted)] mb-4">The Problem</h3>
-                  <div className="bg-[var(--color-card)] border border-[var(--color-line)] rounded-[var(--radius-card)] p-6 md:p-8">
-                    <p className="text-[var(--color-ink)] leading-relaxed">
+          <button
+            type="button"
+            onClick={onBack}
+            className="bl-mono text-[0.625rem] uppercase tracking-[0.14em] text-[#6b6b68] underline decoration-[var(--sheet-rule)] underline-offset-4 transition-colors hover:text-[var(--sheet-ink)] hover:decoration-[var(--sheet-ink)]"
+          >
+            ← Back to systems
+          </button>
+
+          <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[1.55fr_1fr] lg:gap-14">
+            {/* ---------------- datasheet ---------------- */}
+            <div>
+              <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
+                {system.category} · {system.id}
+              </span>
+              <h1 className="mt-4 text-3xl font-bold leading-[1.06] tracking-[-0.04em] text-balance text-[var(--sheet-ink)] sm:text-4xl md:text-[3rem]">
+                {system.name}
+              </h1>
+              <p className="mt-5 max-w-2xl text-[1.0625rem] leading-relaxed text-[#6b6b68]">
+                {system.longDescription ||
+                  system.description ||
+                  system.solution ||
+                  'An enterprise-grade system designed specifically for DevOps consultancies.'}
+              </p>
+
+              <div className="mt-10 flex flex-col gap-4">
+                {system.problem ? (
+                  <Block title="The problem">
+                    <p className="px-4 py-4 leading-relaxed text-[var(--sheet-ink)] md:px-6">
                       {system.problem}
                     </p>
-                  </div>
-                </section>
-              )}
+                  </Block>
+                ) : null}
 
-              {system.outcome && (
-                <section>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-muted)] mb-4">The Outcome</h3>
-                  <div className="bg-[var(--color-card)] border border-[var(--color-line)] rounded-[var(--radius-card)] p-6 md:p-8">
-                    <p className="text-[var(--color-ink)] leading-relaxed font-medium">
+                {system.outcome ? (
+                  <Block title="The outcome">
+                    <p className="px-4 py-4 font-medium leading-relaxed text-[var(--sheet-ink)] md:px-6">
                       {system.outcome}
                     </p>
-                  </div>
-                </section>
-              )}
+                  </Block>
+                ) : null}
 
-              
-              {system.howItWorks && (
-                <section>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-muted)] mb-4">How it Works</h3>
-                  <div className="bg-[var(--color-card)] border border-[var(--color-line)] rounded-[var(--radius-card)] p-6 md:p-8">
-                    <p className="text-[var(--color-ink)] leading-relaxed font-light">
+                {system.howItWorks ? (
+                  <Block title="How it works">
+                    <p className="px-4 py-4 leading-relaxed text-[var(--sheet-ink)] md:px-6">
                       {system.howItWorks}
                     </p>
-                  </div>
-                </section>
-              )}
+                  </Block>
+                ) : null}
 
-              <section>
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-muted)] mb-4">Key Features</h3>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {(system.keyFeatures || [
-                    "Zero-maintenance architecture",
-                    "Fully white-labeled for your agency",
-                    "Seamless CI/CD integration",
-                    "Enterprise-grade security defaults",
-                    "Customizable webhooks & alerts",
-                    "Comprehensive documentation included"
-                  ]).map((feat, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <div className="mt-0.5 w-5 h-5 rounded-full bg-[#0a0a0a] flex items-center justify-center shrink-0">
-                        <Check className="w-3 h-3 text-white" />
-                      </div>
-                      <span className="text-[0.9375rem] text-[var(--color-ink-subtle)] leading-snug">
-                        {feat}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
+                <Block title="Key features">
+                  <MarkedList items={system.keyFeatures || DEFAULT_FEATURES} />
+                </Block>
 
-              {/* ---- Pre-purchase detail. Each section renders only when the
-                   corresponding field exists in systemsData, so a partially
-                   documented system degrades cleanly instead of showing gaps. ---- */}
+                {/* ---- Pre-purchase detail. Each block renders only when the
+                     corresponding field exists in systemsData, so a partially
+                     documented system degrades cleanly instead of showing gaps. ---- */}
 
-              {system.prerequisites?.length ? (
-                <section>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-muted)] mb-2">
-                    Before you buy
-                  </h3>
-                  <p className="mb-4 text-[0.9375rem] leading-relaxed text-[var(--color-ink-muted)]">
-                    You will need these already in place. If any are missing, this system will not
-                    run out of the box.
-                  </p>
-                  <ul className="space-y-2.5">
-                    {system.prerequisites.map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 text-[0.9375rem] text-[var(--color-ink)]">
-                        <span className="mt-[0.55rem] size-1.5 shrink-0 rounded-full bg-[var(--color-ink-subtle)]" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ) : null}
+                {system.prerequisites?.length ? (
+                  <Block
+                    title="Before you buy"
+                    note="You will need these already in place. If any are missing, this system will not run out of the box."
+                  >
+                    <MarkedList items={system.prerequisites} />
+                  </Block>
+                ) : null}
 
-              {system.whatYouGet?.length ? (
-                <section>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-muted)] mb-4">
-                    What you get
-                  </h3>
-                  <ul className="space-y-2.5">
-                    {system.whatYouGet.map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 text-[0.9375rem] text-[var(--color-ink)]">
-                        <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-[#0a0a0a]">
-                          <Check className="size-3 text-white" />
-                        </span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ) : null}
+                {system.whatYouGet?.length ? (
+                  <Block title="What you get">
+                    <MarkedList items={system.whatYouGet} />
+                  </Block>
+                ) : null}
 
-              {system.setupSteps?.length ? (
-                <section>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-muted)] mb-4">
-                    Setup
-                  </h3>
-                  <ol className="space-y-3">
-                    {system.setupSteps.map((step, i) => (
-                      <li key={i} className="flex items-start gap-3.5">
-                        <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-white font-mono text-[0.6875rem] text-[var(--color-ink-muted)]">
-                          {i + 1}
-                        </span>
-                        <span className="text-[0.9375rem] leading-relaxed text-[var(--color-ink)]">{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </section>
-              ) : null}
+                {system.setupSteps?.length ? (
+                  <Block title="Setup">
+                    <MarkedList items={system.setupSteps} ordered />
+                  </Block>
+                ) : null}
 
-              {system.sampleOutput ? (
-                <section>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-muted)] mb-4">
-                    Sample output
-                  </h3>
-                  <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-line)] bg-white">
-                    <div className="border-b border-[var(--color-line)] bg-[var(--color-sunken)] px-4 py-2.5">
-                      <span className="eyebrow text-[var(--color-ink-muted)]">{system.sampleOutput.label}</span>
-                    </div>
-                    <pre className="overflow-x-auto px-4 py-4 font-mono text-[0.8125rem] leading-relaxed text-[var(--color-ink)] whitespace-pre-wrap">
+                {system.sampleOutput ? (
+                  <Block title={`Sample output — ${system.sampleOutput.label}`}>
+                    <pre className="bl-mono overflow-x-auto px-4 py-4 text-[0.8125rem] leading-relaxed whitespace-pre-wrap text-[var(--sheet-ink)] md:px-6">
 {system.sampleOutput.body}
                     </pre>
-                  </div>
-                </section>
-              ) : null}
+                  </Block>
+                ) : null}
 
-              {system.limitations?.length ? (
-                <section>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-muted)] mb-2">
-                    What it does not do
-                  </h3>
-                  <p className="mb-4 text-[0.9375rem] leading-relaxed text-[var(--color-ink-muted)]">
-                    Worth knowing before you buy rather than after.
+                {system.limitations?.length ? (
+                  <Block
+                    title="What it does not do"
+                    note="Worth knowing before you buy rather than after."
+                  >
+                    <MarkedList items={system.limitations} affirmed={false} />
+                  </Block>
+                ) : null}
+
+                {system.runningCosts || system.updatePolicy || system.licenceScope ? (
+                  <Block title="The fine print">
+                    <dl className="m-0">
+                      {([
+                        ['Running costs', system.runningCosts],
+                        ['Updates', system.updatePolicy],
+                        ['Licence', system.licenceScope],
+                      ] as const)
+                        .filter(([, v]) => Boolean(v))
+                        .map(([k, v]) => (
+                          <div
+                            key={k}
+                            className="border-b border-[var(--sheet-rule-soft)] px-4 py-3.5 last:border-b-0 md:px-6"
+                          >
+                            <dt className="bl-mono text-[0.5625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
+                              {k}
+                            </dt>
+                            <dd className="m-0 mt-1.5 text-[0.9375rem] leading-relaxed text-[var(--sheet-ink)]">
+                              {v}
+                            </dd>
+                          </div>
+                        ))}
+                    </dl>
+                  </Block>
+                ) : null}
+              </div>
+            </div>
+
+            {/* ---------------- purchase panel ---------------- */}
+            <div className="relative">
+              <div className="sticky top-24 border border-[var(--sheet-rule)] bg-white">
+                <span className="bl-x" style={{ left: -6, top: -6 }} aria-hidden="true" />
+                <span className="bl-x" style={{ right: -6, top: -6 }} aria-hidden="true" />
+
+                <div className="border-b border-[var(--sheet-rule)] px-5 py-3 md:px-6">
+                  <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
+                    One-time licence
+                  </span>
+                </div>
+
+                <div className="px-5 py-6 md:px-6">
+                  <p className="text-4xl font-bold tracking-[-0.05em] tabular-nums text-[var(--sheet-ink)]">
+                    {system.price}
                   </p>
-                  <ul className="space-y-2.5">
-                    {system.limitations.map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 text-[0.9375rem] text-[var(--color-ink-muted)]">
-                        <span className="mt-[0.55rem] size-1.5 shrink-0 rounded-full bg-[var(--color-line-strong)]" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ) : null}
 
-              {(system.runningCosts || system.updatePolicy || system.licenceScope) ? (
-                <section>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-ink-muted)] mb-4">
-                    The fine print
-                  </h3>
-                  <dl className="divide-y divide-[var(--color-line)] rounded-[var(--radius-card)] border border-[var(--color-line)] bg-white">
-                    {system.runningCosts ? (
-                      <div className="px-4 py-3.5">
-                        <dt className="eyebrow text-[var(--color-ink-muted)]">Running costs</dt>
-                        <dd className="mt-1.5 text-[0.9375rem] leading-relaxed text-[var(--color-ink)]">{system.runningCosts}</dd>
-                      </div>
-                    ) : null}
-                    {system.updatePolicy ? (
-                      <div className="px-4 py-3.5">
-                        <dt className="eyebrow text-[var(--color-ink-muted)]">Updates</dt>
-                        <dd className="mt-1.5 text-[0.9375rem] leading-relaxed text-[var(--color-ink)]">{system.updatePolicy}</dd>
-                      </div>
-                    ) : null}
-                    {system.licenceScope ? (
-                      <div className="px-4 py-3.5">
-                        <dt className="eyebrow text-[var(--color-ink-muted)]">Licence</dt>
-                        <dd className="mt-1.5 text-[0.9375rem] leading-relaxed text-[var(--color-ink)]">{system.licenceScope}</dd>
-                      </div>
-                    ) : null}
-                  </dl>
-                </section>
-              ) : null}
-            </div>
-          </div>
+                  <div className="mt-6">
+                    <BuySystem systemId={system.id} systemName={system.name} price={system.price} />
+                  </div>
 
-          {/* Right Column: Pricing & Specs Card */}
-          <div className="relative">
-            <div className="sticky top-24 bg-[var(--color-card)] border border-[var(--color-line)] rounded-[var(--radius-panel)] p-8 shadow-sm">
-              <div className="mb-6">
-                <p className="text-sm text-[var(--color-ink-muted)] font-medium mb-1">One-time license</p>
-                <div className="flex items-end gap-2">
-                  <span className="text-4xl font-semibold tracking-tight text-[var(--color-ink)]">{system.price}</span>
+                  <button
+                    type="button"
+                    onClick={onOpenBooking}
+                    className="mt-3 flex h-12 w-full items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white text-[0.9375rem] font-semibold text-[var(--sheet-ink)] transition-colors hover:border-[#c4c4bf]"
+                  >
+                    Have it run for you instead
+                  </button>
                 </div>
-              </div>
-              
-              <BuySystem
-                systemId={system.id}
-                systemName={system.name}
-                price={system.price}
-              />
 
-              <button
-                onClick={onOpenBooking}
-                className="w-full h-12 rounded-[var(--radius-control)] bg-transparent border border-[var(--color-line)] text-[var(--color-ink)] font-medium transition-colors hover:bg-[var(--color-sunken)] mb-8 flex items-center justify-center gap-2"
-              >
-                Have it run for you instead
-              </button>
-
-              <div className="space-y-4 pt-6 border-t border-[var(--color-line)]">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--color-ink-muted)]">Target Audience</span>
-                  <span className="font-medium text-[var(--color-ink)] text-right">{system.builtFor || "DevOps Consultancies"}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--color-ink-muted)]">Integrations</span>
-                  <span className="font-medium text-[var(--color-ink)] text-right">{system.connectsTo || "AWS, GCP, Azure"}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--color-ink-muted)]">Output Format</span>
-                  <span className="font-medium text-[var(--color-ink)] text-right">{system.output || "Custom Dashboards"}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--color-ink-muted)]">Deployment Time</span>
-                  <span className="font-medium text-[var(--color-ink)] text-right">{system.deployment || "< 1 hour"}</span>
-                </div>
+                <dl className="m-0 border-t border-[var(--sheet-rule)]">
+                  {specs.map(([k, v]) => (
+                    <div
+                      key={k}
+                      className="flex items-baseline justify-between gap-4 border-b border-[var(--sheet-rule-soft)] px-5 py-3 last:border-b-0 md:px-6"
+                    >
+                      <dt className="bl-mono shrink-0 text-[0.5625rem] uppercase tracking-[0.14em] text-[#9a9a96]">
+                        {k}
+                      </dt>
+                      <dd className="bl-mono m-0 text-right text-[0.6875rem] text-[var(--sheet-ink)]">
+                        {v}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>

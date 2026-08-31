@@ -203,6 +203,20 @@
   opacity: 0.42;
 }
 
+/*
+  The systems library's category row scrolls horizontally on narrow screens but
+  should not show a bar. This class was referenced there long before it existed
+  — Tailwind does not ship it — so the rule was a silent no-op.
+*/
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 .eyebrow {
   font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   letter-spacing: 0.16em;

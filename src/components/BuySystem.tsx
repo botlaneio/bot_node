@@ -77,7 +77,7 @@ export const BuySystem: React.FC<BuySystemProps> = ({ systemId, systemName, pric
         <button
           onClick={startCheckout}
           disabled={busy}
-          className="w-full h-12 rounded-[var(--radius-control)] bg-[var(--color-invert)] text-[var(--color-ink-invert)] font-medium transition-colors hover:bg-[var(--color-invert-raised)] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full h-12 rounded-lg bg-[var(--sheet-ink)] text-[#fafafa] font-medium transition-colors hover:bg-[#2c2c2c] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {busy ? (
             <>
@@ -89,13 +89,13 @@ export const BuySystem: React.FC<BuySystemProps> = ({ systemId, systemName, pric
             </>
           )}
         </button>
-        <p className="mt-2 text-center text-xs text-[var(--color-ink-muted)]">
+        <p className="mt-2 text-center text-xs text-[#6b6b68]">
           Secure checkout via Stripe. You'll be asked for your GitHub username.
         </p>
         {error && (
           <div
             role="alert"
-            className="mt-3 flex items-start gap-2 rounded-[var(--radius-control)] border border-red-200 bg-red-50 p-3 text-xs text-red-800"
+            className="mt-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-800"
           >
             <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
             <span className="leading-relaxed">{error}</span>
@@ -108,7 +108,7 @@ export const BuySystem: React.FC<BuySystemProps> = ({ systemId, systemName, pric
   // Not on sale yet.
   if (joined) {
     return (
-      <div className="mb-4 flex items-center gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-sunken)] p-4 text-sm text-[var(--color-ink)]">
+      <div className="mb-4 flex items-center gap-2.5 rounded-lg border border-[var(--sheet-rule)] bg-[var(--sheet-open)] p-4 text-sm text-[var(--sheet-ink)]">
         <Check className="w-4 h-4 shrink-0" />
         <span>You're on the list. I'll email you the moment this one ships.</span>
       </div>
@@ -117,7 +117,7 @@ export const BuySystem: React.FC<BuySystemProps> = ({ systemId, systemName, pric
 
   return (
     <div className="mb-4">
-      <div className="mb-3 flex items-center justify-center gap-2 rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-sunken)] py-2.5 text-sm font-medium text-[var(--color-ink-muted)]">
+      <div className="mb-3 flex items-center justify-center gap-2 rounded-lg border border-[var(--sheet-rule)] bg-[var(--sheet-open)] py-2.5 text-sm font-medium text-[#6b6b68]">
         <Lock className="w-3.5 h-3.5" /> Available soon
       </div>
       <form onSubmit={joinWaitlist} className="space-y-2">
@@ -145,19 +145,19 @@ export const BuySystem: React.FC<BuySystemProps> = ({ systemId, systemName, pric
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@consultancy.com"
-          className="w-full h-11 rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-page)] px-4 text-sm text-[var(--color-ink)] outline-none transition-colors focus:border-[var(--color-ink)] disabled:opacity-60"
+          className="w-full h-11 rounded-lg border border-[var(--sheet-rule)] bg-[var(--sheet-page)] px-4 text-sm text-[var(--sheet-ink)] outline-none transition-colors focus:border-[var(--sheet-ink)] disabled:opacity-60"
         />
         <button
           type="submit"
           disabled={busy}
-          className="w-full h-11 rounded-[var(--radius-control)] bg-[var(--color-invert)] text-[var(--color-ink-invert)] text-sm font-medium transition-colors hover:bg-[var(--color-invert-raised)] flex items-center justify-center gap-2 disabled:opacity-70"
+          className="w-full h-11 rounded-lg bg-[var(--sheet-ink)] text-[#fafafa] text-sm font-medium transition-colors hover:bg-[#2c2c2c] flex items-center justify-center gap-2 disabled:opacity-70"
         >
           {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Tell me when it ships'}
         </button>
         {error && (
           <div
             role="alert"
-            className="flex items-start gap-2 rounded-[var(--radius-control)] border border-red-200 bg-red-50 p-3 text-xs text-red-800"
+            className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-800"
           >
             <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
             <span className="leading-relaxed">{error}</span>
