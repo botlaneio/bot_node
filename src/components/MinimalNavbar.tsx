@@ -38,7 +38,7 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking }) =
   };
 
   const sectionClass = (active: boolean) =>
-    `text-sm font-medium transition-colors hover:text-[#0d0d0d] ${
+    `text-sm font-medium transition-colors hover:text-[var(--sheet-ink)] ${
       active ? 'text-[#6b6b68]' : 'text-[#9a9a96]'
     }`;
 
@@ -98,8 +98,8 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking }) =
             </li>
             <li>
               <Link
-                className={`text-sm font-medium transition-colors hover:text-[#0d0d0d] ${
-                  onSystems ? 'text-[#0d0d0d]' : 'text-[#6b6b68]'
+                className={`text-sm font-medium transition-colors hover:text-[var(--sheet-ink)] ${
+                  onSystems ? 'text-[var(--sheet-ink)]' : 'text-[#6b6b68]'
                 }`}
                 to="/systems"
                 aria-current={onSystems ? 'page' : undefined}
@@ -114,7 +114,7 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking }) =
             <button
               type="button"
               onClick={onOpenBooking}
-              className="hidden h-9 items-center rounded-[var(--radius-control)] bg-[#0a0a0a] px-4 text-[0.8125rem] font-medium text-[#fafafa] transition-colors hover:bg-[#242424] sm:inline-flex"
+              className="hidden h-9 items-center rounded-lg bg-[var(--sheet-ink)] px-4 text-[0.8125rem] font-semibold text-[#fafafa] transition-colors hover:bg-[#2c2c2c] sm:inline-flex"
             >
               Get the list
             </button>
@@ -124,7 +124,7 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking }) =
               type="button"
               aria-label="Open menu"
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="grid size-9 place-items-center rounded-[var(--radius-control)] border border-[#e3e3e0] text-[#0d0d0d] md:hidden"
+              className="grid size-9 place-items-center border border-[var(--sheet-rule)] text-[var(--sheet-ink)] md:hidden"
             >
               {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
@@ -134,32 +134,32 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking }) =
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="border-t border-[#e3e3e0] bg-[#f2f2f0] md:hidden">
+        <div className="border-t border-[var(--sheet-rule)] bg-[var(--sheet-column)] md:hidden">
           <div className="max-w-[1240px] mx-auto px-6 flex flex-col py-2">
             <a
-              className="text-sm font-medium border-b border-[#e3e3e0] py-4 text-[#6b6b68] hover:text-[#0d0d0d] transition-colors"
+              className="text-sm font-medium border-b border-[var(--sheet-rule)] py-4 text-[#6b6b68] hover:text-[var(--sheet-ink)] transition-colors"
               href="/#features"
               onClick={(e) => handleSection(e, '#features')}
             >
               Features
             </a>
             <a
-              className="text-sm font-medium border-b border-[#e3e3e0] py-4 text-[#6b6b68] hover:text-[#0d0d0d] transition-colors"
+              className="text-sm font-medium border-b border-[var(--sheet-rule)] py-4 text-[#6b6b68] hover:text-[var(--sheet-ink)] transition-colors"
               href="/#how-it-works"
               onClick={(e) => handleSection(e, '#how-it-works')}
             >
               How It Works
             </a>
             <a
-              className="text-sm font-medium border-b border-[#e3e3e0] py-4 text-[#6b6b68] hover:text-[#0d0d0d] transition-colors"
+              className="text-sm font-medium border-b border-[var(--sheet-rule)] py-4 text-[#6b6b68] hover:text-[var(--sheet-ink)] transition-colors"
               href="/#pricing"
               onClick={(e) => handleSection(e, '#pricing')}
             >
               Pricing
             </a>
             <Link
-              className={`text-sm font-medium border-b border-[#e3e3e0] py-4 hover:text-[#0d0d0d] transition-colors ${
-                onSystems ? 'text-[#0d0d0d]' : 'text-[#6b6b68]'
+              className={`text-sm font-medium border-b border-[var(--sheet-rule)] py-4 hover:text-[var(--sheet-ink)] transition-colors ${
+                onSystems ? 'text-[var(--sheet-ink)]' : 'text-[#6b6b68]'
               }`}
               to="/systems"
               onClick={() => setMobileOpen(false)}
@@ -172,7 +172,7 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking }) =
                 setMobileOpen(false);
                 onOpenBooking();
               }}
-              className="mt-3 mb-2 inline-flex h-11 items-center justify-center rounded-[var(--radius-control)] bg-[#0a0a0a] text-sm font-medium text-[#fafafa]"
+              className="mt-3 mb-2 inline-flex h-11 items-center justify-center rounded-lg bg-[var(--sheet-ink)] text-sm font-semibold text-[#fafafa]"
             >
               Get the list
             </button>
