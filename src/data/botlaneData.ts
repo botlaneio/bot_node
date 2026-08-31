@@ -1,6 +1,8 @@
 export interface StalledSignal {
   id: string;
   company: string;
+  /** Company name without the funding parenthetical, for tight axis labels. */
+  short: string;
   funding: string;
   role: string;
   stalledDays: number;
@@ -17,6 +19,7 @@ export const REAL_SIGNALS: StalledSignal[] = [
   {
     id: 'sig-1',
     company: 'Fintech Corp (Series B)',
+    short: 'Fintech Corp',
     funding: '45 Engineers · New York',
     role: 'Staff Infrastructure / EKS Engineer',
     stalledDays: 78,
@@ -37,6 +40,7 @@ Worth a quick 10-minute check to see if an interim squad makes sense?`,
   {
     id: 'sig-2',
     company: 'HealthTech Platform',
+    short: 'HealthTech',
     funding: '70 Engineers · San Francisco',
     role: 'Senior SRE / Observability',
     stalledDays: 92,
@@ -55,6 +59,7 @@ Open to seeing a 2-page teardown of how we helped a similar healthtech team redu
   {
     id: 'sig-3',
     company: 'Logistics SaaS',
+    short: 'Logistics SaaS',
     funding: '30 Engineers · Austin',
     role: 'Lead Cloud Security / CI/CD Architect',
     stalledDays: 64,
@@ -71,6 +76,79 @@ Worth a short chat to see if we can unblock the immediate audit deliverables?`,
     expectedReply: `We actually have an enterprise customer audit in 6 weeks and need this sorted. Can you do a call tomorrow morning?`
   }
 ];
+
+/**
+ * Days a role must stay open before Botlane treats hiring as failed and
+ * releases the contact. This is the business rule the hero is drawn around,
+ * so it lives here rather than in the component that draws it.
+ */
+export const THRESHOLD_DAYS = 60;
+
+/** One role on the hero's roster. */
+export interface TrackedRole {
+  /** Short company label. */
+  label: string;
+  role: string;
+  /** Days open. Decides whether the contact is released. */
+  days: number;
+  contactName: string;
+  contactRole: string;
+}
+
+/**
+ * Roles below the threshold. They are why the qualified ones mean anything:
+ * without a "still hiring" band there is no line to cross. Illustrative,
+ * unlike REAL_SIGNALS above.
+ */
+const APPROACHING: TrackedRole[] = [
+  {
+    label: 'Insurtech Group',
+    role: 'Principal Infrastructure Engineer',
+    days: 29,
+    contactName: 'Sofia R.',
+    contactRole: 'VP Platform'
+  },
+  {
+    label: 'Payments Infra',
+    role: 'Platform Engineer, Kubernetes',
+    days: 41,
+    contactName: 'Tom B.',
+    contactRole: 'Head of Engineering'
+  },
+  {
+    label: 'Data Warehouse',
+    role: 'Staff SRE, Reliability',
+    days: 57,
+    contactName: 'Ana L.',
+    contactRole: 'Director of Infrastructure'
+  },
+  {
+    label: 'Retail Cloud',
+    role: 'DevOps Lead, Platform Migration',
+    days: 103,
+    contactName: 'Priya N.',
+    contactRole: 'Director of Engineering'
+  }
+];
+
+/**
+ * The full roster, ascending. The hero's figure draws one signal in detail,
+ * so this exists to keep the title block honest about how many roles are
+ * tracked and how many have qualified. The three real signals are mapped in
+ * rather than restated, so REAL_SIGNALS stays their single source of truth.
+ */
+export const TRACKED_ROLES: TrackedRole[] = [
+  ...REAL_SIGNALS.map(
+    (s): TrackedRole => ({
+      label: s.short,
+      role: s.role,
+      days: s.stalledDays,
+      contactName: s.contactName,
+      contactRole: s.contactRole
+    })
+  ),
+  ...APPROACHING
+].sort((a, b) => a.days - b.days);
 
 export const HOW_IT_WORKS_STEPS = [
   {

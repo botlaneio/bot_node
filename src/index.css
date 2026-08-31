@@ -29,6 +29,180 @@
   }
 }
 
+/*
+  ---------------------------------------------------------------------------
+  Hero: the drafting sheet.
+  ---------------------------------------------------------------------------
+  The hero is drawn as a technical sheet rather than laid out as a web page.
+  Everything here is namespaced `bl-` because several of these names (row,
+  cells, block) are generic enough to collide with section styles elsewhere.
+
+  There is no accent colour by design. Botlane already treats solid black as
+  "qualified", so the threshold reads through weight:
+    open cells  = within 60 days, still hiring
+    solid black = past the threshold, contact released
+*/
+:root {
+  --sheet-page: #f7f7f5;   /* outside the drawing column */
+  --sheet-column: #fcfcfb; /* the column itself */
+  --sheet-rule: #e4e4e0;
+  --sheet-rule-soft: #eeeeea;
+  --sheet-rule-faint: #f3f3f0;
+  --sheet-mark: #c9c9c4;
+  --sheet-open: #f4f4f1;
+  --sheet-open-line: #d5d5d0;
+  --sheet-ink: #101010;
+  --sheet-grey: #9d9d99;
+}
+
+.bl-display {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.bl-mono {
+  font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* The two rules that define the drawing column. */
+.bl-sheet::before,
+.bl-sheet::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--sheet-rule);
+  z-index: 4;
+}
+.bl-sheet::before { left: 0; }
+.bl-sheet::after { right: 0; }
+
+/*
+  Column rules. These are what stop open areas reading as nothing: the paper
+  is divided into cells whether or not anything sits in them.
+*/
+.bl-rules i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--sheet-rule-faint);
+  display: block;
+}
+
+/* Registration crosshair, straddling a rule. */
+.bl-x {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  z-index: 5;
+  pointer-events: none;
+}
+.bl-x::before,
+.bl-x::after {
+  content: "";
+  position: absolute;
+  background: var(--sheet-mark);
+}
+.bl-x::before { left: 0; right: 0; top: 5px; height: 1px; }
+.bl-x::after { top: 0; bottom: 0; left: 5px; width: 1px; }
+
+/* Faint grid patch that sets the headline. */
+.bl-patch {
+  background-image:
+    linear-gradient(var(--sheet-rule-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--sheet-rule-soft) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: linear-gradient(115deg, #000, transparent 78%);
+  mask-image: linear-gradient(115deg, #000, transparent 78%);
+}
+
+/*
+  The day matrix: one cell per day, twenty per row. Six rows is 120 days, and
+  because twenty divides sixty exactly, the threshold falls on a row boundary —
+  the grid states the rule without being told to.
+*/
+.bl-cells {
+  position: relative;
+  aspect-ratio: 10 / 3;
+  border: 1px solid var(--sheet-rule-soft);
+  background-image:
+    linear-gradient(var(--sheet-rule-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--sheet-rule-soft) 1px, transparent 1px);
+  background-size: calc(100% / 20) calc(100% / 6);
+}
+
+/* Days 1–60: the first three rows. */
+.bl-pre {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50%;
+  background: var(--sheet-open);
+}
+
+/* Days past the threshold, filled cell by cell across row four. */
+.bl-post {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 16.6667%;
+  background: var(--sheet-ink);
+  transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/*
+  Redrawn over the fills so the cell edges stay visible inside the black —
+  without this the filled days read as one solid bar and stop being countable,
+  which is the whole point of the figure.
+*/
+.bl-cell-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+  background-size: calc(100% / 20) calc(100% / 6);
+  mix-blend-mode: difference;
+  opacity: 0.55;
+}
+
+/*
+  Sixty days is a page-wide rule, so the threshold escapes the figure, crosses
+  the open margins and terminates on the sheet's own rules. It lives inside the
+  cell grid so that 50% is the row-three boundary — the end of day 60 — rather
+  than half of the surrounding figure.
+*/
+/*
+  --bl-gutter is the distance from the matrix's edge out to the sheet's own
+  rule: the figure's horizontal padding, plus its 1px border, plus the hero
+  container's padding. It has to track the breakpoint, which is why it lives
+  here rather than as an inline style.
+*/
+.bl-fig-body { --bl-gutter: calc(1rem + 1px + 1.5rem); }
+@media (min-width: 768px) {
+  .bl-fig-body { --bl-gutter: calc(1.75rem + 1px + 3rem); }
+}
+
+.bl-horizon {
+  position: absolute;
+  top: 50%;
+  height: 1px;
+  z-index: 4;
+  pointer-events: none;
+  left: calc(-1 * var(--bl-gutter));
+  right: calc(-1 * var(--bl-gutter));
+}
+
+.bl-horizon-line {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, var(--sheet-ink) 0 6px, transparent 6px 12px);
+  opacity: 0.42;
+}
+
 .eyebrow {
   font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   letter-spacing: 0.16em;

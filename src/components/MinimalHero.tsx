@@ -1,205 +1,283 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { REAL_SIGNALS } from '../data/botlaneData';
+import { REAL_SIGNALS, TRACKED_ROLES, THRESHOLD_DAYS } from '../data/botlaneData';
 
 interface MinimalHeroProps {
   onOpenBooking: () => void;
 }
 
-/** Days at which the progress track renders its threshold marker. */
-const THRESHOLD = 60;
-/** Upper bound of the track, so the fill stays proportional across signals. */
-const SCALE = 100;
+/** Cells per row in the day matrix. Twenty divides sixty exactly, so the
+ *  threshold lands on a row boundary rather than mid-row. */
+const COLS = 20;
+/** Six rows of twenty. The upper bound of the drawing, in days. */
+const SCALE_DAYS = COLS * 6;
+
+/** The signal drawn in detail. The rest of the roster feeds the title block. */
+const FOCUS = REAL_SIGNALS[0];
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
-const rise = (delay: number) => ({
-  initial: { opacity: 0, y: 20, filter: 'blur(8px)' },
-  animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
-  transition: { duration: 0.8, delay, ease },
-});
+/**
+ * Staged entrance. Returns nothing at all when reduced motion is requested, so
+ * the element renders in place rather than depending on an animation to become
+ * visible — otherwise anything that stops the animation leaves a blank hero.
+ */
+const rise = (delay: number, reduced: boolean) =>
+  reduced
+    ? {}
+    : {
+        initial: { opacity: 0, y: 14 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.8, delay, ease },
+      };
+
+/** Width of the filled region, as a percentage of one row. */
+const fillFor = (days: number) =>
+  days <= THRESHOLD_DAYS ? 0 : ((days - THRESHOLD_DAYS) / COLS) * 100;
 
 /**
- * Counts a signal's days-open upward, crosses the 60-day threshold, then
- * advances to the next signal. Pauses while off-screen and renders the
- * final state immediately when reduced motion is requested.
+ * Counts the role's days upward. Cells only begin filling once the count is
+ * past the threshold, so the drawing and the number never disagree.
  */
-function useSignalCycle(count: number, reduced: boolean) {
-  const [index, setIndex] = useState(0);
-  const [days, setDays] = useState(() => (reduced ? REAL_SIGNALS[0].stalledDays : 0));
-  const ref = useRef<HTMLDivElement>(null);
-  const visible = useRef(true);
+function useDayCount(target: number, reduced: boolean) {
+  const [days, setDays] = useState(reduced ? target : 0);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => { visible.current = e.isIntersecting; });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const target = REAL_SIGNALS[index].stalledDays;
-
+    // Settle immediately rather than relying on the initial state: if the
+    // reduced-motion preference resolves after the first render, the matrix
+    // would otherwise stay empty for good.
     if (reduced) {
       setDays(target);
-      const hold = setTimeout(() => setIndex((i) => (i + 1) % count), 6000);
-      return () => clearTimeout(hold);
+      return;
     }
 
     let frame = 0;
     let start: number | null = null;
-    let hold: ReturnType<typeof setTimeout>;
-    const DURATION = 1700;
+    const DURATION = 1900;
 
     const step = (t: number) => {
       if (start === null) start = t;
-      if (!visible.current) { start = t - 0; frame = requestAnimationFrame(step); return; }
       const p = Math.min((t - start) / DURATION, 1);
       setDays(Math.round(target * (1 - Math.pow(1 - p, 3))));
       if (p < 1) frame = requestAnimationFrame(step);
-      else hold = setTimeout(() => setIndex((i) => (i + 1) % count), 2800);
     };
 
-    setDays(0);
-    frame = requestAnimationFrame(step);
-    return () => { cancelAnimationFrame(frame); clearTimeout(hold); };
-  }, [index, count, reduced]);
+    const hold = setTimeout(() => { frame = requestAnimationFrame(step); }, 700);
+    return () => { clearTimeout(hold); cancelAnimationFrame(frame); };
+  }, [target, reduced]);
 
-  return { signal: REAL_SIGNALS[index], days, ref };
+  return days;
 }
 
 export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
   const reduced = useReducedMotion() ?? false;
-  const { signal, days, ref } = useSignalCycle(REAL_SIGNALS.length, reduced);
+  const days = useDayCount(FOCUS.stalledDays, reduced);
 
-  const qualified = days >= THRESHOLD;
-  const fill = Math.min((days / SCALE) * 100, 100);
+  const qualified = TRACKED_ROLES.filter((r) => r.days >= THRESHOLD_DAYS).length;
 
   return (
-    <section className="relative overflow-hidden border-b border-[#e3e3e0] pt-24 pb-20 md:pt-32 md:pb-28">
-      {/* Dot grid. Purely decorative, kept faint enough not to fight the type. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage: 'radial-gradient(#0d0d0d 0.6px, transparent 0.6px)',
-          backgroundSize: '24px 24px',
-        }}
-      />
-
-      <div className="relative z-10 mx-auto grid max-w-[1180px] items-center gap-12 px-5 md:px-8 lg:grid-cols-[1fr_minmax(0,26rem)] lg:gap-16">
-        {/* ---------------- Left column ---------------- */}
-        <div>
-          <motion.div {...rise(0)}>
-            <span className="inline-flex items-center rounded-full border border-[#d2d2ce] bg-white px-3 py-1.5 text-[0.8125rem] text-[#6b6b68]">
-              Outbound infrastructure for DevOps consultancies
-            </span>
-          </motion.div>
-
-          <motion.h1
-            {...rise(0.08)}
-            className="mt-5 text-[2.35rem] font-semibold leading-[1.08] tracking-[-0.035em] text-[#0d0d0d] sm:text-5xl lg:text-[3.5rem]"
-          >
-            <span className="block font-light text-[#6b6b68]">They can&rsquo;t hire.</span>
-            You&rsquo;re the answer.
-          </motion.h1>
-
-          <motion.p
-            {...rise(0.16)}
-            className="mt-5 max-w-xl text-base leading-[1.7] text-[#6b6b68] md:text-[1.0625rem]"
-          >
-            I track infrastructure roles that stall past {THRESHOLD} days, then send you the firms
-            where your services are the obvious fix.
-          </motion.p>
-
-          <motion.div {...rise(0.24)} className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={onOpenBooking}
-              className="inline-flex h-12 items-center justify-center gap-2.5 rounded-full bg-[#0a0a0a] pl-2 pr-6 text-[0.9375rem] font-medium text-[#fafafa] shadow-[0_1px_2px_rgba(0,0,0,0.18)] transition-colors duration-200 hover:bg-[#242424] active:scale-[0.98]"
-            >
-              <span className="grid size-8 place-items-center rounded-full bg-[#fafafa] text-[#0a0a0a]">
-                <ArrowRight className="size-4" />
-              </span>
-              Check slot availability
-            </button>
-
-            <a
-              href="#how-it-works"
-              className="inline-flex h-12 items-center justify-center rounded-full border border-[#d2d2ce] bg-white px-6 text-[0.9375rem] font-medium text-[#0d0d0d] transition-colors duration-200 hover:border-[#9a9a96] hover:bg-[#fafafa] active:scale-[0.98]"
-            >
-              See how it works
-            </a>
-          </motion.div>
-
-          {/* Commitments, not outcomes — each is something Botlane controls. */}
-          <motion.ul
-            {...rise(0.32)}
-            className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-[0.8125rem] text-[#6b6b68]"
-          >
-            <li><span className="font-medium text-[#0d0d0d]">4</span> client cap</li>
-            <li><span className="font-medium text-[#0d0d0d]">3wk</span> domain warm-up</li>
-            <li><span className="font-medium text-[#0d0d0d]">0</span> emails from your domain</li>
-          </motion.ul>
+    <section className="bl-display relative overflow-hidden bg-[var(--sheet-page)] px-[14px]">
+      <div className="bl-sheet relative mx-auto max-w-[1240px] bg-[var(--sheet-column)]">
+        {/* Column rules: the paper is cellular whether or not a cell is used. */}
+        <div className="bl-rules pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+          <i style={{ left: '16.666%' }} /><i style={{ left: '33.333%' }} />
+          <i style={{ left: '50%' }} /><i style={{ left: '66.666%' }} />
+          <i style={{ left: '83.333%' }} />
         </div>
 
-        {/* ---------------- Right column: live signal ---------------- */}
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 28, filter: 'blur(10px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 0.9, delay: 0.35, ease }}
-          className="overflow-hidden rounded-[var(--radius-panel)] border border-[#e3e3e0] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_18px_40px_-24px_rgba(0,0,0,0.18)]"
-        >
-          <div className="flex items-start justify-between gap-4 border-b border-[#e3e3e0] px-5 py-4">
-            <div className="min-w-0">
-              <p className="truncate text-[0.9375rem] font-medium text-[#0d0d0d]">{signal.company}</p>
-              <p className="mt-0.5 truncate text-[0.8125rem] text-[#9a9a96]">{signal.funding}</p>
-            </div>
-            <div className="shrink-0 text-right">
-              <p className="font-mono text-2xl font-medium leading-none text-[#0d0d0d]" aria-live="polite">
-                {days}
-              </p>
-              <p className="eyebrow mt-1.5 text-[#9a9a96]">days open</p>
-            </div>
-          </div>
+        <div className="relative z-10 px-6 pt-28 pb-10 md:px-12 md:pt-36">
+          <span className="bl-x" style={{ left: -6, bottom: -6 }} aria-hidden="true" />
+          <span className="bl-x" style={{ right: -6, bottom: -6 }} aria-hidden="true" />
 
-          <div className="px-5 py-4">
-            <p className="eyebrow text-[#9a9a96]">Unfilled role</p>
-            <p className="mt-1.5 text-[0.9375rem] text-[#0d0d0d]">{signal.role}</p>
+          <div
+            className="bl-patch pointer-events-none absolute left-0 top-20 -z-10 h-[180px] w-[min(56%,600px)]"
+            aria-hidden="true"
+          />
 
-            <div className="relative mt-5 h-[3px] rounded-full bg-[#e3e3e0]">
-              <div
-                className="absolute inset-y-0 left-0 rounded-full bg-[#0a0a0a]"
-                style={{ width: `${fill}%`, transition: reduced ? 'none' : 'width 60ms linear' }}
-              />
-              <div
-                className="absolute -top-1 -bottom-1 w-px bg-[#b4b2a9]"
-                style={{ left: `${THRESHOLD}%` }}
-                aria-hidden="true"
-              />
-            </div>
-            <div className="mt-2 flex justify-between">
-              <span className="eyebrow text-[#9a9a96]">posted</span>
-              <span className="eyebrow text-[#9a9a96]">{THRESHOLD}d threshold</span>
+          {/* ---------------- copy + title block ---------------- */}
+          <div className="grid gap-11 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start lg:gap-14">
+            <div>
+              <motion.span
+                {...rise(0, reduced)}
+                className="inline-flex items-center gap-2.5 rounded-full border border-[var(--sheet-rule)] bg-white px-3.5 py-2 text-[0.6875rem] text-[#6b6b68]"
+              >
+                <span className="size-1.5 shrink-0 rounded-full bg-[var(--sheet-ink)]" />
+                Live — {TRACKED_ROLES.length} roles tracked against the line
+              </motion.span>
+
+              <motion.h1
+                {...rise(0.1, reduced)}
+                className="mt-6 max-w-[16ch] text-[2.2rem] font-bold leading-[1.04] tracking-[-0.045em] text-balance text-[var(--sheet-ink)] sm:text-5xl lg:text-[3.9rem]"
+              >
+                <span className="block text-[var(--sheet-grey)]">They can&rsquo;t hire.</span>
+                You&rsquo;re the answer.
+              </motion.h1>
+
+              <motion.p
+                {...rise(0.2, reduced)}
+                className="mt-5 max-w-[52ch] text-base leading-[1.72] text-[#6b6b68]"
+              >
+                One line decides everything. Below it, a company is still hiring. Above it, hiring has
+                failed — and we hand you{' '}
+                <b className="font-semibold text-[var(--sheet-ink)]">
+                  the firm, the stack, and the person to reach.
+                </b>
+              </motion.p>
+
+              <motion.div {...rise(0.3, reduced)} className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  onClick={onOpenBooking}
+                  className="inline-flex h-12 items-center justify-center rounded-lg bg-[var(--sheet-ink)] px-6 text-[0.9375rem] font-semibold text-[#fafafa] transition-colors duration-200 hover:bg-[#2c2c2c]"
+                >
+                  Check slot availability
+                </button>
+                <a
+                  href="#how-it-works"
+                  className="inline-flex h-12 items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white px-6 text-[0.9375rem] font-semibold text-[var(--sheet-ink)] transition-colors duration-200 hover:border-[#c4c4bf]"
+                >
+                  See how it works
+                </a>
+              </motion.div>
             </div>
 
-            <div
-              className="mt-4 flex items-center justify-between gap-3 border-t border-[#e3e3e0] pt-4 transition-opacity duration-500"
-              style={{ opacity: qualified ? 1 : 0 }}
+            {/*
+              Title block. This is the drawing's metadata, and it is what makes
+              the space beside the headline part of the sheet rather than a gap.
+            */}
+            <motion.aside
+              {...rise(0.38, reduced)}
+              className="relative border border-[var(--sheet-rule)] bg-white"
             >
-              <p className="min-w-0 truncate text-[0.8125rem] text-[#6b6b68]">
-                <span className="font-medium text-[#0d0d0d]">Reach:</span>{' '}
-                {signal.contactName}, {signal.contactRole}
-              </p>
-              <span className="eyebrow shrink-0 rounded-[var(--radius-control)] bg-[#0a0a0a] px-2 py-1 text-[#fafafa]">
-                qualified
-              </span>
-            </div>
+              <span className="bl-x" style={{ right: -6, top: -6 }} aria-hidden="true" />
+              <span className="bl-x" style={{ right: -6, bottom: -6 }} aria-hidden="true" />
+
+              <div className="bl-mono flex items-center justify-between gap-4 border-b border-[var(--sheet-rule)] px-3.5 py-2.5 text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
+                <span>Sheet</span><span>BL&mdash;01</span>
+              </div>
+
+              <dl className="m-0">
+                {[
+                  ['Subject', 'Stalled infrastructure roles'],
+                  ['Threshold', `${THRESHOLD_DAYS} days`],
+                  ['Scale', `0 – ${SCALE_DAYS} d`],
+                  ['Tracked', `${TRACKED_ROLES.length} roles · ${qualified} qualified`],
+                  ['Revision', 'C · continuous'],
+                ].map(([term, value]) => (
+                  <div
+                    key={term}
+                    className="flex items-baseline justify-between gap-4 border-b border-[var(--sheet-rule-soft)] px-3.5 py-2.5"
+                  >
+                    <dt className="bl-mono text-[0.625rem] uppercase tracking-[0.12em] text-[#9a9a96]">
+                      {term}
+                    </dt>
+                    <dd className="bl-mono m-0 text-right text-xs font-medium text-[var(--sheet-ink)]">
+                      {value}
+                    </dd>
+                  </div>
+                ))}
+                <div className="flex items-baseline justify-between gap-4 px-3.5 py-2.5">
+                  <dt className="bl-mono text-[0.625rem] uppercase tracking-[0.12em] text-[#9a9a96]">
+                    Lanes
+                  </dt>
+                  <dd className="m-0">
+                    <span className="flex gap-1" aria-label="3 of 4 lanes taken">
+                      <i className="block h-1 w-[15px] rounded-[1px] bg-[var(--sheet-ink)]" />
+                      <i className="block h-1 w-[15px] rounded-[1px] bg-[var(--sheet-ink)]" />
+                      <i className="block h-1 w-[15px] rounded-[1px] bg-[var(--sheet-ink)]" />
+                      <i className="block h-1 w-[15px] rounded-[1px] bg-[var(--sheet-rule)]" />
+                    </span>
+                  </dd>
+                </div>
+              </dl>
+            </motion.aside>
           </div>
-        </motion.div>
+
+          {/* ---------------- Fig. 01 — the day matrix ---------------- */}
+          <motion.figure
+            {...rise(0.46, reduced)}
+            className="relative m-0 mt-12 border border-[var(--sheet-rule)] bg-white"
+          >
+            <span className="bl-x" style={{ left: -6, top: -6 }} aria-hidden="true" />
+            <span className="bl-x" style={{ right: -6, top: -6 }} aria-hidden="true" />
+            <span className="bl-x" style={{ left: -6, bottom: -6 }} aria-hidden="true" />
+            <span className="bl-x" style={{ right: -6, bottom: -6 }} aria-hidden="true" />
+
+            <figcaption className="flex flex-wrap items-baseline justify-between gap-4 border-b border-[var(--sheet-rule)] px-4 py-3 md:px-7">
+              <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
+                Fig. 01 — {FOCUS.short}, one cell per day
+              </span>
+              <span className="flex items-baseline gap-2">
+                <b
+                  className="bl-mono text-2xl font-bold leading-none tracking-[-0.045em] tabular-nums text-[var(--sheet-ink)]"
+                  aria-live="polite"
+                >
+                  {days}
+                </b>
+                <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
+                  days open
+                </span>
+              </span>
+            </figcaption>
+
+            {/*
+              bl-fig-body carries --bl-gutter, the distance out to the sheet's
+              own rule, so the threshold can escape the figure and cross the
+              open margins. Keep its padding in step with that variable.
+            */}
+            <div className="bl-fig-body relative px-4 pt-14 md:px-7 md:pt-16">
+              <div className="relative">
+                <div
+                  className="bl-cells"
+                  role="img"
+                  aria-label={`One hundred and twenty cells, one per day. The first ${THRESHOLD_DAYS} are open; days ${THRESHOLD_DAYS + 1} to ${FOCUS.stalledDays} are filled — ${FOCUS.stalledDays - THRESHOLD_DAYS} days past the threshold, so the contact is released.`}
+                >
+                  <div className="bl-pre" />
+                  <div
+                    className="bl-post"
+                    style={{
+                      width: `${fillFor(days)}%`,
+                      transition: reduced ? 'none' : undefined,
+                    }}
+                  />
+                  <div className="bl-cell-lines" />
+
+                  <div className="bl-horizon" aria-hidden="true">
+                    <span className="bl-x" style={{ left: -5, top: -5 }} />
+                    <span className="bl-x" style={{ right: -5, top: -5 }} />
+                    <div className="bl-horizon-line" />
+                    <span className="bl-mono absolute -top-[31px] right-0 rounded border border-[var(--sheet-rule)] bg-white px-2 py-1.5 text-[0.625rem] uppercase tracking-[0.14em] whitespace-nowrap text-[var(--sheet-ink)]">
+                      {THRESHOLD_DAYS} days — threshold
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bl-mono mt-3.5 flex justify-between border-t border-[var(--sheet-rule)] pt-3 text-[0.625rem] text-[#9a9a96]">
+                  <span>Day 1 — posted</span><span>Day {SCALE_DAYS}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap justify-between gap-4 border-t border-[var(--sheet-rule)] px-4 py-3 md:px-7">
+              <div className="bl-mono flex flex-wrap gap-6 text-[0.625rem] uppercase tracking-[0.12em] text-[#9a9a96]">
+                <span className="flex items-center gap-2">
+                  <i className="block size-2.5 rounded-[2px] border border-[var(--sheet-open-line)] bg-[var(--sheet-open)]" />
+                  Within {THRESHOLD_DAYS} days
+                </span>
+                <span className="flex items-center gap-2">
+                  <i className="block size-2.5 rounded-[2px] bg-[var(--sheet-ink)]" />
+                  Past the threshold — contact released
+                </span>
+              </div>
+              <p className="m-0 text-xs text-[#6b6b68]">
+                {FOCUS.role} &nbsp;&rarr;&nbsp;{' '}
+                <b className="font-semibold text-[var(--sheet-ink)]">
+                  {FOCUS.contactName}, {FOCUS.contactRole}
+                </b>
+              </p>
+            </div>
+          </motion.figure>
+        </div>
       </div>
     </section>
   );

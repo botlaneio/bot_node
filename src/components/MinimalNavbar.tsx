@@ -46,7 +46,7 @@ export const MinimalNavbar: React.FC<MinimalNavbarProps> = ({ onOpenBooking }) =
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 border-b ${
         scrolled
-          ? 'border-[#e3e3e0] bg-[#f2f2f0]/90 backdrop-blur-md'
+          ? 'border-[var(--sheet-rule)] bg-[var(--sheet-column)]/90 backdrop-blur-md'
           : 'border-transparent bg-transparent'
       }`}
     >
