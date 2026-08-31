@@ -218,6 +218,56 @@
 }
 
 /*
+  The plotter pass. The figure is drawn rather than faded in: a head travels
+  once across it, leaving the grid and the day-60 rule behind, and only then
+  does the count plot onto what has been drawn.
+
+  Everything sits at its finished state by default — the animation only ever
+  hides things temporarily — so with reduced motion, or if this never runs, the
+  figure is simply already drawn.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .bl-sweep {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    background: #ffffff;
+    border-left: 1px solid var(--sheet-ink);
+    pointer-events: none;
+    animation: bl-sweep 1600ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  }
+
+  /* left travels to the far edge, so the cover ends with no width at all */
+  @keyframes bl-sweep {
+    from { left: 0; opacity: 1; }
+    98%  { left: 100%; opacity: 1; }
+    to   { left: 100%; opacity: 0; }
+  }
+
+  /* the rule is inked left to right, in step with the head */
+  .bl-horizon-line {
+    transform-origin: left center;
+    animation: bl-ink 1600ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  @keyframes bl-ink {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
+  /* its marks and label land once the rule is complete */
+  .bl-horizon .bl-x,
+  .bl-horizon .bl-mono {
+    animation: bl-land 400ms 1450ms both;
+  }
+
+  @keyframes bl-land {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+/*
   The systems library's category row scrolls horizontally on narrow screens but
   should not show a bar. This class was referenced there long before it existed
   — Tailwind does not ship it — so the rule was a silent no-op.

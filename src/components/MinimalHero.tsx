@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { REAL_SIGNALS, TRACKED_ROLES, THRESHOLD_DAYS } from '../data/botlaneData';
 
@@ -12,10 +12,12 @@ const COLS = 20;
 /** Six rows of twenty. The upper bound of the drawing, in days. */
 const SCALE_DAYS = COLS * 6;
 
-/** How long the count takes, and how long the finished reading holds. */
-const COUNT_MS = 1900;
-const HOLD_MS = 3400;
-const CYCLE_MS = COUNT_MS + HOLD_MS;
+/** The signal the figure is drawn for. */
+const FOCUS = REAL_SIGNALS[0];
+
+/** How long the head takes to cross, and how long the count takes after it. */
+const SWEEP_MS = 1600;
+const COUNT_MS = 1700;
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -51,32 +53,19 @@ const fillFor = (days: number) => {
 };
 
 /**
- * Cycles the figure through the tracked signals: counts one role's days up
- * from zero, holds the finished reading, then hands to the next and repeats.
+ * Plots the figure once: the head crosses, then the day count runs onto the
+ * grid it left behind.
  *
- * The matrix is the one element on the page that is about time accumulating,
- * so it should not settle once and stop. Cycling also restores something the
- * single-signal drawing gave up — that there is a roster behind it, not one
- * example.
+ * The count is written straight to the DOM. It changes every frame, and
+ * putting it in state would re-render the whole hero sixty times a second.
  *
- * The count and the fill are written straight to the DOM. They change every
- * frame, and putting them in state would re-render the whole hero sixty times
- * a second; only the signal index is state, and that changes twice a cycle.
- *
- * Driven by requestAnimationFrame rather than an interval, so it stops when
- * the tab is hidden instead of running on unwatched and lurching on return.
+ * requestAnimationFrame rather than an interval, so a hidden tab does not run
+ * the plot unwatched and finish before anyone sees it.
  */
-function useSignalCycle(reduced: boolean, paused: boolean) {
-  const [index, setIndex] = useState(0);
+function usePlot(reduced: boolean) {
   const numRef = useRef<HTMLElement>(null);
   const fullRef = useRef<HTMLDivElement>(null);
   const partRef = useRef<HTMLDivElement>(null);
-  const elapsed = useRef(0);
-  const indexRef = useRef(0);
-
-  useEffect(() => {
-    indexRef.current = index;
-  }, [index]);
 
   useEffect(() => {
     const draw = (d: number) => {
@@ -89,43 +78,41 @@ function useSignalCycle(reduced: boolean, paused: boolean) {
       }
     };
 
-    // Settle on the first signal and stay there.
+    // Already drawn. Nothing to plot.
     if (reduced) {
-      setIndex(0);
-      draw(REAL_SIGNALS[0].stalledDays);
+      draw(FOCUS.stalledDays);
       return;
     }
 
+    draw(0);
+
     let frame = 0;
-    let last: number | null = null;
+    let start: number | null = null;
 
     const tick = (now: number) => {
-      const dt = last === null ? 0 : now - last;
-      last = now;
-      if (!paused) elapsed.current += dt;
-
-      const target = REAL_SIGNALS[indexRef.current].stalledDays;
-      const p = Math.min(elapsed.current / COUNT_MS, 1);
-      draw(Math.round(target * (1 - Math.pow(1 - p, 3))));
-
-      if (elapsed.current >= CYCLE_MS) {
-        elapsed.current = 0;
-        setIndex((i) => (i + 1) % REAL_SIGNALS.length);
-      }
-      frame = requestAnimationFrame(tick);
+      if (start === null) start = now;
+      const p = Math.min((now - start) / COUNT_MS, 1);
+      draw(Math.round(FOCUS.stalledDays * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) frame = requestAnimationFrame(tick);
     };
 
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [reduced, paused]);
+    // held until the head has finished crossing
+    const wait = setTimeout(() => {
+      frame = requestAnimationFrame(tick);
+    }, SWEEP_MS);
 
-  return { signal: REAL_SIGNALS[index], index, numRef, fullRef, partRef };
+    return () => {
+      clearTimeout(wait);
+      cancelAnimationFrame(frame);
+    };
+  }, [reduced]);
+
+  return { numRef, fullRef, partRef };
 }
 
 export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
   const reduced = useReducedMotion() ?? false;
-  const [paused, setPaused] = useState(false);
-  const { signal, index, numRef, fullRef, partRef } = useSignalCycle(reduced, paused);
+  const { numRef, fullRef, partRef } = usePlot(reduced);
 
   const qualified = TRACKED_ROLES.filter((r) => r.days >= THRESHOLD_DAYS).length;
 
@@ -251,12 +238,6 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
           <motion.figure
             {...rise(0.46, reduced)}
             className="relative m-0 mt-12 border border-[var(--sheet-rule)] bg-white"
-            /* The figure cycles on its own, so it holds while anyone is
-               actually reading it. */
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
-            onFocus={() => setPaused(true)}
-            onBlur={() => setPaused(false)}
           >
             <span className="bl-x" style={{ left: -6, top: -6 }} aria-hidden="true" />
             <span className="bl-x" style={{ right: -6, top: -6 }} aria-hidden="true" />
@@ -265,11 +246,8 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
 
             <figcaption className="flex flex-wrap items-baseline justify-between gap-4 border-b border-[var(--sheet-rule)] px-4 py-3 md:px-7">
               <span className="bl-mono text-[0.625rem] uppercase leading-[1.7] tracking-[0.16em] text-[#9a9a96]">
-                Fig. 01 — {signal.short}, one cell per day
-                <span className="block text-[#c4c4bf]">
-                  {signal.funding} · signal {index + 1} of {REAL_SIGNALS.length}
-                  {reduced ? '' : paused ? ' · held' : ''}
-                </span>
+                Fig. 01 — {FOCUS.short}, one cell per day
+                <span className="block text-[#c4c4bf]">{FOCUS.funding}</span>
               </span>
               <span className="flex items-baseline gap-2">
                 <b
@@ -289,10 +267,14 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
             */}
             <div className="bl-fig-body relative px-4 pt-14 md:px-7 md:pt-16">
               <div className="relative">
+                {/* The plotter head. Rendered only when it will actually move,
+                    so reduced motion is never left with a cover over the
+                    finished drawing. */}
+                {!reduced && <div className="bl-sweep" aria-hidden="true" />}
                 <div
                   className="bl-cells"
                   role="img"
-                  aria-label={`${signal.short}: one hundred and twenty cells, one per day. The first ${THRESHOLD_DAYS} are open; days ${THRESHOLD_DAYS + 1} to ${signal.stalledDays} are filled — ${signal.stalledDays - THRESHOLD_DAYS} days past the threshold, so the contact is released.`}
+                  aria-label={`${FOCUS.short}: one hundred and twenty cells, one per day. The first ${THRESHOLD_DAYS} are open; days ${THRESHOLD_DAYS + 1} to ${FOCUS.stalledDays} are filled — ${FOCUS.stalledDays - THRESHOLD_DAYS} days past the threshold, so the contact is released.`}
                 >
                   <div className="bl-pre" />
                   <div ref={fullRef} className="bl-post-full" />
@@ -327,9 +309,9 @@ export const MinimalHero: React.FC<MinimalHeroProps> = ({ onOpenBooking }) => {
                 </span>
               </div>
               <p className="m-0 text-xs text-[#6b6b68]">
-                {signal.role} &nbsp;&rarr;&nbsp;{' '}
+                {FOCUS.role} &nbsp;&rarr;&nbsp;{' '}
                 <b className="font-semibold text-[var(--sheet-ink)]">
-                  {signal.contactName}, {signal.contactRole}
+                  {FOCUS.contactName}, {FOCUS.contactRole}
                 </b>
               </p>
             </div>
