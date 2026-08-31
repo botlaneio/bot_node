@@ -22,6 +22,65 @@ const SystemDetail = lazy(() =>
   import('./components/SystemDetail').then((m) => ({ default: m.SystemDetail }))
 );
 
+const SITE_NAME = 'Botlane';
+
+/** Creates the tag if it is missing, updates it if it is not. */
+function upsertMeta(attr: 'name' | 'property', key: string, content: string) {
+  let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute(attr, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', content);
+}
+
+function upsertCanonical(href: string) {
+  let el = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  if (!el) {
+    el = document.createElement('link');
+    el.rel = 'canonical';
+    document.head.appendChild(el);
+  }
+  el.href = href;
+}
+
+/**
+ * Per-route title, description and canonical.
+ *
+ * This is a single-page app with no server rendering, so every route used to
+ * serve the landing page's title and description — the eight system pages were
+ * indistinguishable to anything reading the document head.
+ *
+ * The canonical is built from the live origin rather than a hardcoded domain,
+ * so preview deployments describe themselves rather than pointing at
+ * production. It is deliberately absent from index.html: a static canonical
+ * would tell crawlers that every route is really the homepage, which is worse
+ * than having none at all.
+ */
+function useDocumentMeta(title: string, description: string, noIndex = false) {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const url = `${window.location.origin}${pathname}`;
+
+    document.title = title;
+    upsertMeta('name', 'description', description);
+    upsertMeta('property', 'og:title', title);
+    upsertMeta('property', 'og:description', description);
+    upsertMeta('property', 'og:url', url);
+    upsertCanonical(url);
+
+    // Thank-you and error pages are real URLs but nothing worth indexing.
+    const robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (noIndex) {
+      upsertMeta('name', 'robots', 'noindex');
+    } else if (robots) {
+      robots.remove();
+    }
+  }, [title, description, noIndex, pathname]);
+}
+
 /**
  * Scrolls to the top on route change, or to the hash target when one is
  * present. Without this, navigation keeps the previous scroll position.
@@ -46,6 +105,10 @@ function ScrollManager() {
 
 function LandingPage({ onOpenBooking }: { onOpenBooking: () => void }) {
   const navigate = useNavigate();
+  useDocumentMeta(
+    `${SITE_NAME} — Outbound Infrastructure for DevOps Consultancies`,
+    'Outbound infrastructure for DevOps consultancies. We find companies with stalled infrastructure roles and put you in front of them.'
+  );
   return (
     <>
       <MinimalHero onOpenBooking={onOpenBooking} />
@@ -60,6 +123,10 @@ function LandingPage({ onOpenBooking }: { onOpenBooking: () => void }) {
 }
 
 function MarketplacePage({ onOpenBooking }: { onOpenBooking: () => void }) {
+  useDocumentMeta(
+    `Systems — ${SITE_NAME}`,
+    'Eight systems built for DevOps consultancies: status reporting, incident intelligence, RFP responses, infrastructure audits and more. Included with the retainer, or bought individually.'
+  );
   // Cards carry their own <Link>, so there is no navigation callback to thread
   // through — which is also what makes them reachable by keyboard.
   return <Marketplace onOpenBooking={onOpenBooking} />;
@@ -74,6 +141,15 @@ function SystemDetailPage({ onOpenBooking }: { onOpenBooking: () => void }) {
     (s) => s.id.toLowerCase() === (systemId || '').toLowerCase()
   );
 
+  // Called before the early return: hooks cannot run conditionally.
+  useDocumentMeta(
+    match ? `${match.name} — ${SITE_NAME}` : `Page not found — ${SITE_NAME}`,
+    match
+      ? match.solution || match.description || match.longDescription || ''
+      : 'That page does not exist.',
+    !match
+  );
+
   if (!match) return <NotFound />;
 
   return (
@@ -83,6 +159,16 @@ function SystemDetailPage({ onOpenBooking }: { onOpenBooking: () => void }) {
       onOpenBooking={onOpenBooking}
     />
   );
+}
+
+function PurchaseCompletePage() {
+  useDocumentMeta(`Purchase complete — ${SITE_NAME}`, 'Your purchase is confirmed.', true);
+  return <PurchaseComplete />;
+}
+
+function NotFoundPage() {
+  useDocumentMeta(`Page not found — ${SITE_NAME}`, 'That page does not exist.', true);
+  return <NotFound />;
 }
 
 export default function App() {
@@ -114,10 +200,10 @@ export default function App() {
               path="/systems/:systemId"
               element={<SystemDetailPage onOpenBooking={openBooking} />}
             />
-            <Route path="/systems/:systemId/complete" element={<PurchaseComplete />} />
+            <Route path="/systems/:systemId/complete" element={<PurchaseCompletePage />} />
             {/* Legacy path kept so older shared links still resolve. */}
             <Route path="/marketplace" element={<Navigate to="/systems" replace />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
 
