@@ -5,36 +5,48 @@ interface MinimalFooterProps {
   onOpenBooking: () => void;
 }
 
-const COLUMNS = [
+/*
+ * The full index. `href` is present only where a destination actually exists;
+ * everything else is listed but not made clickable, so the footer can show the
+ * shape of the company without shipping links that do nothing.
+ *
+ * Giving one of these a page is just a matter of adding its href.
+ */
+type FooterLink = { label: string; href?: string };
+
+const COLUMNS: { heading: string; links: FooterLink[] }[] = [
   {
     heading: 'Platform',
     links: [
       { label: 'Features', href: '/#features' },
-      { label: 'How It Works', href: '/#how-it-works' },
+      { label: 'How it works', href: '/#how-it-works' },
       { label: 'Pricing', href: '/#pricing' },
-      { label: 'Integrations', href: '#integrations' },
-      { label: 'Changelog', href: '#changelog' },
+      { label: 'Our systems', href: '/systems' },
+      { label: 'Integrations' },
+      { label: 'Changelog' },
     ],
   },
   {
     heading: 'Solutions',
     links: [
-      { label: 'DevOps Agencies', href: '#devops' },
-      { label: 'Cloud Consultancies', href: '#cloud' },
-      { label: 'Independent Experts', href: '#freelance' },
-      { label: 'Partner Program', href: '#partners' },
+      { label: 'DevOps agencies' },
+      { label: 'Cloud consultancies' },
+      { label: 'Independent experts' },
+      { label: 'Partner programme' },
     ],
   },
   {
     heading: 'Resources',
     links: [
-      { label: 'Documentation', href: '#documentation' },
-      { label: 'API Reference', href: '#api' },
-      { label: 'Knowledge Base', href: '/#faq' },
-      { label: 'Deployment Guides', href: '#guides' },
+      { label: 'Knowledge base', href: '/#faq' },
+      { label: 'Documentation' },
+      { label: 'API reference' },
+      { label: 'Deployment guides' },
     ],
   },
 ];
+
+
 
 
 /**
@@ -264,12 +276,21 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                   <ul className="flex flex-col gap-4">
                     {col.links.map((l) => (
                       <li key={l.label}>
-                        <a
-                          className="text-[14px] text-white/70 transition-colors hover:text-white"
-                          href={l.href}
-                        >
-                          {l.label}
-                        </a>
+                        {l.href ? (
+                          <a
+                            className="text-[14px] text-white/70 transition-colors hover:text-white"
+                            href={l.href}
+                          >
+                            {l.label}
+                          </a>
+                        ) : (
+                          <span className="flex items-baseline gap-2 text-[14px] text-white/35">
+                            {l.label}
+                            <span className="bl-mono text-[0.5rem] uppercase tracking-[0.16em] text-white/25">
+                              soon
+                            </span>
+                          </span>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -282,28 +303,45 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                 </h3>
                 <ul className="flex flex-col gap-4">
                   <li>
-                    <a className="text-[14px] text-white/70 transition-colors hover:text-white" href="#about">
-                      About Us
-                    </a>
-                  </li>
-                  <li>
                     <button
                       type="button"
                       onClick={onOpenBooking}
                       className="text-left text-[14px] text-white/70 transition-colors hover:text-white"
                     >
-                      Contact Sales
+                      Contact sales
                     </button>
                   </li>
                   <li>
-                    <a className="text-[14px] text-white/70 transition-colors hover:text-white" href="#privacy">
-                      Privacy Policy
+                    <a
+                      className="text-[14px] text-white/70 transition-colors hover:text-white"
+                      href="mailto:sales@botlane.io"
+                    >
+                      sales@botlane.io
                     </a>
                   </li>
                   <li>
-                    <a className="text-[14px] text-white/70 transition-colors hover:text-white" href="#terms">
-                      Terms of Service
-                    </a>
+                    <span className="flex items-baseline gap-2 text-[14px] text-white/35">
+                      About
+                      <span className="bl-mono text-[0.5rem] uppercase tracking-[0.16em] text-white/25">
+                        soon
+                      </span>
+                    </span>
+                  </li>
+                  <li>
+                    <span className="flex items-baseline gap-2 text-[14px] text-white/35">
+                      Privacy policy
+                      <span className="bl-mono text-[0.5rem] uppercase tracking-[0.16em] text-white/25">
+                        soon
+                      </span>
+                    </span>
+                  </li>
+                  <li>
+                    <span className="flex items-baseline gap-2 text-[14px] text-white/35">
+                      Terms of service
+                      <span className="bl-mono text-[0.5rem] uppercase tracking-[0.16em] text-white/25">
+                        soon
+                      </span>
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -321,11 +359,6 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
               </span>
             </div>
 
-            <div className="flex items-center gap-6">
-              <a href="#" className="transition-colors hover:text-white">Twitter</a>
-              <a href="#" className="transition-colors hover:text-white">LinkedIn</a>
-              <a href="#" className="transition-colors hover:text-white">GitHub</a>
-            </div>
           </div>
         </div>
       </div>
