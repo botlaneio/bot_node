@@ -322,16 +322,73 @@ pg_cron; at a few thousand rows a year it is tidiness, not necessity.
 
 ## 5. Verify
 
-Against a preview deployment, submit the footer form six times in a row. The
-first five succeed; the sixth returns a red error in the form rather than a
-false success. Then check:
+Run against production on 2026-08-30. It passed; this is how to repeat it.
 
-- Supabase → `rate_limits` — a row whose `hits` reads 6
-- Supabase → `list_requests` — only five new rows
-- Your inbox — five alerts, not six
+Do **not** verify by making six genuine submissions. That writes five real rows
+into `list_requests` and sends five alerts to your inbox — permanent residue in
+production to prove something you can prove without it.
 
-The window is an hour, so either wait it out or delete the row to reset while
-testing.
+Instead, use the honeypot. The rate-limit guard sits above the body parse, so a
+honeypot submission is still counted by the limiter but discarded before any
+insert or email. Six of those exercise the limiter and leave nothing behind.
+
+First reset the counter for your own address, so the run starts from zero:
+
+```sql
+delete from public.rate_limits where bucket like 'list-request:%';
+```
+
+Then fire six, with the honeypot filled in:
+
+```bash
+for i in 1 2 3 4 5 6; do
+  curl -s -o /dev/null -w "submission $i -> %{http_code}\n" \
+    -X POST -H 'Content-Type: application/json' \
+    -d "{\"email\":\"rl-test-$i@example.com\",\"honeypot\":\"bot\"}" \
+    https://www.botlane.io/api/list-request
+done
+```
+
+Expect `200` five times, then `429` with a `Retry-After: 3600` header and the
+error the forms already know how to display.
+
+Now the check that actually matters — a genuine submission, no honeypot, which
+must also be refused:
+
+```bash
+curl -s -X POST -H 'Content-Type: application/json' \
+  -d '{"email":"genuine-probe@example.com"}' \
+  https://www.botlane.io/api/list-request
+```
+
+Expect `429`. This is the part worth caring about: it proves a real request is
+rejected *before* it reaches the database, rather than merely that bot traffic
+gets filtered.
+
+Then confirm in Supabase:
+
+```sql
+select
+  (select count(*) from public.list_requests) as rows_now,
+  (select hits from public.rate_limits where bucket like 'list-request:%') as hits;
+```
+
+`hits` should read 7 — blocked requests still count — while `rows_now` is
+**unchanged** from before the run. A counter that climbed while the table stayed
+still is the proof: the guard fires ahead of the write.
+
+Finally, clear the test bucket so your own address is not locked out for the
+rest of the hour:
+
+```sql
+delete from public.rate_limits where bucket like 'list-request:%';
+```
+
+Substitute the endpoint name and threshold to test the others: `apply` and
+`list-request` allow 5 an hour, `waitlist` and `checkout` allow 10. All four
+share the same `rateLimit()` helper, so proving one proves the mechanism —
+though note `apply` emails you on a genuine submission, so keep the honeypot
+set there.
 
 ---
 
