@@ -63,6 +63,17 @@
   --sheet-accent: #1b4d8f;
   --sheet-accent-hover: #163f75;
   --sheet-accent-tint: #d6e3f4;
+
+  /*
+    The same blue, moved to where it survives a near-black ground. The window
+    is narrow: darker than this and the button stops separating from the
+    footer (3:1 for a control), lighter and white type on it stops clearing
+    4.5:1. #3a72c4 makes 3.97 and 4.59; the hover darkens to 3.18 and 5.73.
+    The logo's dark tint (#6f8fb5) is not reusable here — it reads well as a
+    mark but only carries white text at 3.21.
+  */
+  --sheet-accent-on-dark: #3a72c4;
+  --sheet-accent-on-dark-hover: #2f63ad;
 }
 
 .bl-display {
@@ -406,6 +417,14 @@
 :where(a, button, [role='button'], summary, [tabindex]):focus-visible {
   outline: 2px solid var(--sheet-accent);
   outline-offset: 2px;
+}
+
+/*
+  Anything on the dark footer swaps to the on-dark blue, focus rings included:
+  the light-canvas accent sits at 2.27:1 there, which is a ring you cannot see.
+*/
+.bl-on-dark :where(a, button, [role='button'], summary, [tabindex]):focus-visible {
+  outline-color: var(--sheet-accent-on-dark);
 }
 
 /*

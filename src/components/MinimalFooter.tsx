@@ -116,7 +116,7 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
   };
 
   return (
-    <footer className="bl-display bg-[var(--sheet-ink)] pt-16 pb-8 text-[#fafafa] md:pt-24 md:pb-10">
+    <footer className="bl-display bl-on-dark bg-[var(--sheet-ink)] pt-16 pb-8 text-[#fafafa] md:pt-24 md:pb-10">
       <div className="mx-auto max-w-[1240px] px-6 md:px-12">
         <div className="relative">
           <div className="mb-20 grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-8">
@@ -242,7 +242,7 @@ export const MinimalFooter: React.FC<MinimalFooterProps> = ({ onOpenBooking }) =
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-lg bg-white text-sm font-semibold text-[var(--sheet-ink)] transition-colors duration-200 hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-70"
+                      className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-lg bg-[var(--sheet-accent-on-dark)] text-sm font-semibold text-[#fafafa] transition-colors duration-200 hover:bg-[var(--sheet-accent-on-dark-hover)] disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       {submitting ? 'Sending…' : 'Send the list'}
                     </button>

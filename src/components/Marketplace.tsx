@@ -411,7 +411,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
           </section>
 
           {/* ---------------- 07 · retainer note ---------------- */}
-          <div className="relative mt-4 bg-[var(--sheet-ink)] px-6 py-10 md:px-10 md:py-14">
+          <div className="bl-on-dark relative mt-4 bg-[var(--sheet-ink)] px-6 py-10 md:px-10 md:py-14">
             <Corners />
             <div className="max-w-2xl">
               <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#8a8a86]">
@@ -432,7 +432,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
               <button
                 type="button"
                 onClick={onOpenBooking}
-                className="mt-8 inline-flex h-12 items-center justify-center rounded-lg bg-white px-6 text-[0.9375rem] font-semibold text-[var(--sheet-ink)] transition-colors hover:bg-white/90"
+                className="mt-8 inline-flex h-12 items-center justify-center rounded-lg bg-[var(--sheet-accent-on-dark)] px-6 text-[0.9375rem] font-semibold text-[#fafafa] transition-colors hover:bg-[var(--sheet-accent-on-dark-hover)]"
               >
                 Check slot availability
               </button>
