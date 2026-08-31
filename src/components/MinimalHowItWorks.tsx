@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { THRESHOLD_DAYS } from '../data/botlaneData';
+import { StepFigure } from './StepFigures';
 
 /**
  * Four steps, in order. Unlike the specification schedule, these genuinely are
@@ -153,101 +154,107 @@ export const MinimalHowItWorks: React.FC = () => {
               </span>
             </div>
 
-            <ol className="m-0">
-              {STEPS.map((s, i) => {
-                const open = reduced || i === active;
-                const panelId = `step-panel-${s.n}`;
-                return (
-                  <li
-                    key={s.n}
-                    className="relative border-b border-[var(--sheet-rule)] last:border-b-0"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => select(i)}
-                      aria-expanded={open}
-                      aria-controls={panelId}
-                      className="grid w-full cursor-pointer text-left md:grid-cols-[5rem_minmax(0,1fr)_minmax(0,18rem)]"
+            {/* Steps left, the drawing right — the reference's own arrangement,
+                so the figure changes as the procedure advances. */}
+            <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,25rem)]">
+              <ol className="m-0 border-b border-[var(--sheet-rule)] lg:border-b-0 lg:border-r">
+                {STEPS.map((s, i) => {
+                  const open = reduced || i === active;
+                  const panelId = `step-panel-${s.n}`;
+                  return (
+                    <li
+                      key={s.n}
+                      className="relative border-b border-[var(--sheet-rule)] last:border-b-0"
                     >
-                      <span className="flex items-start px-4 pt-5 md:justify-center md:border-r md:border-[var(--sheet-rule)] md:px-0 md:py-7">
-                        <span
-                          className={`bl-mono text-sm tabular-nums transition-colors duration-300 ${
-                            open ? 'text-[var(--sheet-ink)]' : 'text-[#9a9a96]'
-                          }`}
-                        >
-                          {s.n}
-                        </span>
-                      </span>
-
-                      <span className="block px-4 pb-5 pt-2 md:px-7 md:py-7">
-                        <span
-                          className={`block text-lg font-bold leading-snug tracking-[-0.025em] text-balance transition-colors duration-300 md:text-xl ${
-                            open ? 'text-[var(--sheet-ink)]' : 'text-[#6b6b68]'
-                          }`}
-                        >
-                          {s.title}
-                        </span>
-
-                        <AnimatePresence initial={false}>
-                          {open && (
-                            <motion.span
-                              id={panelId}
-                              className="block overflow-hidden"
-                              initial={reduced ? false : { height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={reduced ? undefined : { height: 0, opacity: 0 }}
-                              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                            >
-                              <span className="mt-2.5 block max-w-md text-[0.9375rem] leading-relaxed text-[#6b6b68]">
-                                {s.body}
-                              </span>
-                            </motion.span>
-                          )}
-                        </AnimatePresence>
-                      </span>
-
-                      <span className="block px-4 pb-6 md:border-l md:border-[var(--sheet-rule)] md:px-6 md:py-7">
-                        <span
-                          className={`block border px-3 py-2.5 transition-colors duration-300 ${
-                            open
-                              ? 'border-[var(--sheet-rule)] bg-[var(--sheet-open)]'
-                              : 'border-[var(--sheet-rule-soft)] bg-white'
-                          }`}
-                        >
+                      <button
+                        type="button"
+                        onClick={() => select(i)}
+                        aria-expanded={open}
+                        aria-controls={panelId}
+                        className="grid w-full cursor-pointer grid-cols-[3.5rem_minmax(0,1fr)] text-left"
+                      >
+                        <span className="flex items-start justify-center border-r border-[var(--sheet-rule)] py-5 md:py-6">
                           <span
-                            className={`bl-mono block text-[0.5625rem] uppercase leading-[1.5] tracking-[0.16em] transition-colors duration-300 ${
-                              open ? 'text-[#9a9a96]' : 'text-[#c4c4bf]'
-                            }`}
-                          >
-                            {s.label}
-                          </span>
-                          <span
-                            className={`bl-mono mt-1.5 block text-xs leading-[1.5] transition-colors duration-300 ${
+                            className={`bl-mono text-sm tabular-nums transition-colors duration-300 ${
                               open ? 'text-[var(--sheet-ink)]' : 'text-[#9a9a96]'
                             }`}
                           >
-                            {s.value}
+                            {s.n}
                           </span>
                         </span>
-                      </span>
-                    </button>
 
-                    {/*
-                      The dwell, drawn. It is the clearest signal that the
-                      procedure is running rather than sitting still — and it
-                      visibly stops when the block is held.
-                    */}
-                    {!reduced && i === active && (
-                      <span
-                        ref={barRef}
-                        className="absolute bottom-0 left-0 h-px w-0 bg-[var(--sheet-ink)]"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </li>
-                );
-              })}
-            </ol>
+                        <span className="block px-4 py-5 md:px-6 md:py-6">
+                          <span
+                            className={`block text-lg font-bold leading-snug tracking-[-0.025em] text-balance transition-colors duration-300 ${
+                              open ? 'text-[var(--sheet-ink)]' : 'text-[#6b6b68]'
+                            }`}
+                          >
+                            {s.title}
+                          </span>
+
+                          <AnimatePresence initial={false}>
+                            {open && (
+                              <motion.span
+                                id={panelId}
+                                className="block overflow-hidden"
+                                initial={reduced ? false : { height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={reduced ? undefined : { height: 0, opacity: 0 }}
+                                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                              >
+                                <span className="mt-2.5 block max-w-md text-[0.9375rem] leading-relaxed text-[#6b6b68]">
+                                  {s.body}
+                                </span>
+                              </motion.span>
+                            )}
+                          </AnimatePresence>
+                        </span>
+                      </button>
+
+                      {/*
+                        The dwell, drawn. It is the clearest signal that the
+                        procedure is running rather than sitting still — and it
+                        visibly stops when the block is held.
+                      */}
+                      {!reduced && i === active && (
+                        <span
+                          ref={barRef}
+                          className="absolute bottom-0 left-0 h-px w-0 bg-[var(--sheet-ink)]"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+
+              {/* the drawing */}
+              <div className="flex flex-col">
+                <div className="flex flex-1 items-center justify-center px-4 py-6 md:px-6">
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                      key={reduced ? 'static' : active}
+                      className="w-full"
+                      initial={reduced ? false : { opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={reduced ? undefined : { opacity: 0 }}
+                      transition={{ duration: 0.22, ease: 'easeOut' }}
+                    >
+                      <StepFigure step={active} threshold={THRESHOLD_DAYS} />
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+
+                <div className="border-t border-[var(--sheet-rule)] px-4 py-3 md:px-6">
+                  <p className="bl-mono m-0 text-[0.5625rem] uppercase leading-[1.5] tracking-[0.16em] text-[#9a9a96]">
+                    {STEPS[active].label}
+                  </p>
+                  <p className="bl-mono m-0 mt-1.5 text-xs leading-[1.5] text-[var(--sheet-ink)]">
+                    {STEPS[active].value}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
