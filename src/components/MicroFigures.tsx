@@ -112,21 +112,54 @@ export const ScheduleFigure: React.FC<{ kind: keyof typeof SCHEDULE }> = ({ kind
    Inventory figures — 240 × 120, one per deliverable.
    =================================================================== */
 
-/** The scope you define, drawn as an aperture. */
-const InvScope: React.FC = () => (
-  <>
-    <g transform="translate(120,54)">
-      <circle r="46" fill="none" stroke={RULE} strokeWidth="1" strokeDasharray="3 4" />
-      <circle r="28" fill="none" stroke={RULE} strokeWidth="1" />
-      <circle r="13" fill={OPEN} stroke={INK} strokeWidth="1.5" />
-      <rect x="-3" y="-3" width="6" height="6" fill={INK} />
-      <path d="M-58 0 H-52 M52 0 H58 M0 -58 V-52 M0 52 V58" stroke={RULE} strokeWidth="1" />
-    </g>
-    <text x="120" y="112" textAnchor="middle" fill={GREY} style={tiny}>
-      STACK · REGION · SIZE · EXCLUSIONS
-    </text>
-  </>
-);
+/**
+ * The scope you define — drawn as the narrowing it actually is.
+ *
+ * The first version of this was a set of concentric rings, which was both a
+ * repeat of the procedure's step-01 aperture and a picture that named its
+ * criteria without showing them. Here each criterion visibly cuts the width,
+ * so the drawing states what the caption used to have to.
+ */
+const InvScope: React.FC = () => {
+  const rows = [
+    { label: 'MARKET', w: 166 },
+    { label: 'AWS / K8S', w: 132 },
+    { label: 'NA + EU', w: 100 },
+    { label: 'SERIES A–C', w: 70 },
+    { label: 'TARGET', w: 44, solid: true },
+  ];
+  return (
+    <>
+      {/* the taper, connecting where each cut lands */}
+      <path
+        d={rows.map((r, i) => `${i === 0 ? 'M' : 'L'}${64 + r.w} ${16 + i * 20}`).join(' ')}
+        fill="none"
+        stroke={RULE}
+        strokeWidth="1"
+        strokeDasharray="2 3"
+      />
+      {rows.map((r, i) => (
+        <g key={r.label}>
+          <text x="10" y={20 + i * 20} fill={r.solid ? INK : GREY} style={tiny}>
+            {r.label}
+          </text>
+          <rect
+            x="64"
+            y={10 + i * 20}
+            width={r.w}
+            height="12"
+            fill={r.solid ? INK : OPEN}
+            stroke={r.solid ? INK : RULE}
+            strokeWidth="1"
+          />
+        </g>
+      ))}
+      <text x="64" y="114" fill={GREY} style={tiny}>
+        MINUS YOUR EXCLUSION LIST
+      </text>
+    </>
+  );
+};
 
 /** Forty companies, dated — the ones past the line are yours. */
 const InvSignals: React.FC = () => {
@@ -178,7 +211,7 @@ const InvOwnership: React.FC = () => (
 const INVENTORY: Record<string, { node: React.ReactNode; alt: string }> = {
   scope: {
     node: <InvScope />,
-    alt: 'An aperture narrowing onto a defined target: stack, region, company size and exclusions.',
+    alt: 'Five stacked bars, each shorter than the last: total market, then cut by stack, by region, by funding stage, down to a solid target bar, minus your exclusion list.',
   },
   signals: {
     node: <InvSignals />,
