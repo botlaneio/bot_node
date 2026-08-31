@@ -158,7 +158,7 @@ site shows "Available soon" with email capture on every system.
 | `STRIPE_SECRET_KEY` | Stripe → Developers → API keys. Use `sk_test_...` first. |
 | `STRIPE_WEBHOOK_SECRET` | Given when you create the webhook endpoint (`whsec_...`). |
 | `GITHUB_TOKEN` | Fine-grained PAT with **Administration: read & write** on the eight repos only. |
-| `SITE_URL` | `https://botnode.vercel.app` — the canonical origin Stripe redirects back to. |
+| `SITE_URL` | `https://www.botlane.io` — the canonical origin Stripe redirects back to. Note the `www`; see below. |
 
 The GitHub token should be scoped to those eight repos and nothing else. It can
 add collaborators, so it is not a token to be generous with.
@@ -169,6 +169,18 @@ preview deployments keep working) and ignores anything else. If it is unset,
 redirects fall back to `VERCEL_URL`, which is the per-deployment hostname
 rather than your stable domain — so buyers would be returned to a URL that
 changes with every deploy.
+
+**Use `https://www.botlane.io`, with the `www`.** The apex redirects there, so
+by the time the app is running the browser is on `www` and that is the `Origin`
+it sends. Setting the apex instead would mean every genuine checkout fails the
+allowlist, logs `ignoring untrusted origin`, and falls back — it would still
+work, but through the fallback path rather than the intended one, and the logs
+would be full of warnings about your own visitors.
+
+The project currently serves `botlane.io`, `www.botlane.io`,
+`botnode.vercel.app`, and two generated Vercel hostnames. `www.botlane.io` is
+the one visitors end up on. If you ever switch the redirect to point at the
+apex instead, this value and the webhook URL below both need changing.
 
 ## Fill in `api/_fulfilment.ts`
 
@@ -185,8 +197,24 @@ half-configured system cannot take money.
 
 Stripe → Developers → Webhooks → Add endpoint:
 
-- URL: `https://botnode.vercel.app/api/stripe-webhook`
+- URL: `https://www.botlane.io/api/stripe-webhook`
 - Event: `checkout.session.completed` only
+
+**The `www` is not optional here.** The apex `botlane.io` answers `/api/*` with
+a 308 redirect to `www`, and Stripe does not follow redirects when delivering a
+webhook — it would record every delivery as failed. The symptom is the worst
+kind: the payment succeeds, the webhook never runs, and the buyer never gets
+their repository invitation.
+
+Checked with a POST to both:
+
+```
+https://botlane.io/api/stripe-webhook       308  → www
+https://www.botlane.io/api/stripe-webhook   400  (the handler rejecting an unsigned body — correct)
+```
+
+If you already registered the endpoint at `botnode.vercel.app` or at the apex,
+change it. A 400 from `www` is the healthy answer to an unsigned request.
 
 ## Testing before going live
 
