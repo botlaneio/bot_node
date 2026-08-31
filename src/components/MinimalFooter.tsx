@@ -38,10 +38,10 @@ const COLUMNS: { heading: string; links: FooterLink[] }[] = [
   {
     heading: 'Resources',
     links: [
+      { label: 'Documentation', href: '/docs' },
       { label: 'Knowledge base', href: '/#faq' },
-      { label: 'Documentation' },
       { label: 'API reference' },
-      { label: 'Deployment guides' },
+      { label: 'Deployment guides', href: '/systems' },
     ],
   },
 ];

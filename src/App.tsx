@@ -17,6 +17,7 @@ import { PurchaseComplete } from './components/PurchaseComplete';
 import { ALL_SYSTEMS } from './data/systemsData';
 import { LegalPage } from './components/LegalPage';
 import { PRIVACY, TERMS } from './data/legalData';
+import { DOCS } from './data/docsData';
 
 // Split out of the main bundle: neither is needed to render the landing page.
 const Marketplace = lazy(() => import('./components/Marketplace'));
@@ -121,6 +122,21 @@ function LandingPage({ onOpenBooking }: { onOpenBooking: () => void }) {
       <MinimalBuying />
       <MinimalFaq />
     </>
+  );
+}
+
+function DocsPage() {
+  useDocumentMeta(
+    `Documentation — ${SITE_NAME}`,
+    'How the retainer runs week by week, what Botlane needs from you, and what a purchased system contains and requires.'
+  );
+  return (
+    <LegalPage
+      eyebrow="Documentation"
+      title="How it runs"
+      standfirst="Operating notes for both halves of Botlane: the retainer we run for you, and the systems you deploy yourself."
+      clauses={DOCS}
+    />
   );
 }
 
@@ -237,6 +253,7 @@ export default function App() {
             <Route path="/systems/:systemId/complete" element={<PurchaseCompletePage />} />
             {/* Legacy path kept so older shared links still resolve. */}
             <Route path="/marketplace" element={<Navigate to="/systems" replace />} />
+            <Route path="/docs" element={<DocsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="*" element={<NotFoundPage />} />
