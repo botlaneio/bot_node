@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { THRESHOLD_DAYS } from '../data/botlaneData';
 
 /**
@@ -40,26 +40,68 @@ const STEPS = [
   },
 ];
 
-export const MinimalHowItWorks: React.FC = () => {
-  const reduced = useReducedMotion() ?? false;
+/** How long each step holds before the procedure advances, in milliseconds. */
+const DWELL = 4500;
 
-  const container = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.09, delayChildren: 0.04 } },
+/**
+ * Runs the procedure: advances a step at a time and draws how far through the
+ * current step it is, so the row can show its own timer.
+ *
+ * Driven by requestAnimationFrame accumulating real elapsed time rather than
+ * by an interval. An interval drifts, and browsers throttle it to roughly 1Hz
+ * in a background tab, so the procedure would crawl while nobody was looking
+ * and then lurch on return. rAF simply stops when the tab is hidden and
+ * resumes cleanly.
+ *
+ * The bar is written straight to the DOM: it changes every frame, and putting
+ * it in state would re-render the whole section sixty times a second.
+ */
+function useProcedure(count: number, reduced: boolean, paused: boolean) {
+  const [active, setActive] = useState(0);
+  const barRef = useRef<HTMLSpanElement>(null);
+  const elapsed = useRef(0);
+
+  useEffect(() => {
+    if (reduced) return;
+
+    let frame = 0;
+    let last: number | null = null;
+
+    const tick = (now: number) => {
+      const dt = last === null ? 0 : now - last;
+      last = now;
+
+      if (!paused) {
+        elapsed.current += dt;
+        if (elapsed.current >= DWELL) {
+          elapsed.current = 0;
+          setActive((a) => (a + 1) % count);
+        }
+      }
+
+      if (barRef.current) {
+        barRef.current.style.width = `${Math.min((elapsed.current / DWELL) * 100, 100)}%`;
+      }
+      frame = requestAnimationFrame(tick);
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [reduced, paused, count]);
+
+  /** Selecting a step by hand restarts its dwell rather than inheriting it. */
+  const select = (i: number) => {
+    elapsed.current = 0;
+    setActive(i);
   };
 
-  // No animation props under reduced motion, so each row renders in place
-  // rather than depending on an animation to become visible.
-  const row = reduced
-    ? {}
-    : {
-        hidden: { opacity: 0, y: 12 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] as const },
-        },
-      };
+  return { active, select, barRef };
+}
+
+export const MinimalHowItWorks: React.FC = () => {
+  const reduced = useReducedMotion() ?? false;
+  const [paused, setPaused] = useState(false);
+  const { active, select, barRef } = useProcedure(STEPS.length, reduced, paused);
 
   return (
     <section
@@ -88,64 +130,125 @@ export const MinimalHowItWorks: React.FC = () => {
           </div>
 
           {/* ---------------- the procedure ---------------- */}
-          <motion.ol
+          <div
             className="relative mt-10 border border-[var(--sheet-rule)] bg-white"
-            variants={container}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
+            /* The procedure runs itself, so it holds while anyone is reading or
+               tabbing through it rather than moving out from under them. */
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+            onFocus={() => setPaused(true)}
+            onBlur={() => setPaused(false)}
           >
             <span className="bl-x" style={{ left: -6, top: -6 }} aria-hidden="true" />
             <span className="bl-x" style={{ right: -6, top: -6 }} aria-hidden="true" />
             <span className="bl-x" style={{ left: -6, bottom: -6 }} aria-hidden="true" />
             <span className="bl-x" style={{ right: -6, bottom: -6 }} aria-hidden="true" />
 
-            <li className="flex flex-wrap items-baseline justify-between gap-4 border-b border-[var(--sheet-rule)] px-4 py-3 md:px-7">
+            <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-[var(--sheet-rule)] px-4 py-3 md:px-7">
               <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
                 Procedure — four steps
               </span>
               <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
-                Built once, then it runs
+                {reduced ? 'Built once, then it runs' : paused ? 'Held' : 'Running'}
               </span>
-            </li>
+            </div>
 
-            {STEPS.map((s) => (
-              <motion.li
-                key={s.n}
-                variants={row}
-                /*
-                  Padding sits on the cells rather than the row, so the number
-                  column's rule runs the full height and reads as one continuous
-                  spine down the block.
-                */
-                className="grid border-b border-[var(--sheet-rule)] last:border-b-0 md:grid-cols-[5rem_minmax(0,1fr)_minmax(0,18rem)]"
-              >
-                <div className="flex items-start px-4 pt-5 md:justify-center md:border-r md:border-[var(--sheet-rule)] md:px-0 md:py-7">
-                  <span className="bl-mono text-sm tabular-nums text-[#9a9a96]">{s.n}</span>
-                </div>
+            <ol className="m-0">
+              {STEPS.map((s, i) => {
+                const open = reduced || i === active;
+                const panelId = `step-panel-${s.n}`;
+                return (
+                  <li
+                    key={s.n}
+                    className="relative border-b border-[var(--sheet-rule)] last:border-b-0"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => select(i)}
+                      aria-expanded={open}
+                      aria-controls={panelId}
+                      className="grid w-full cursor-pointer text-left md:grid-cols-[5rem_minmax(0,1fr)_minmax(0,18rem)]"
+                    >
+                      <span className="flex items-start px-4 pt-5 md:justify-center md:border-r md:border-[var(--sheet-rule)] md:px-0 md:py-7">
+                        <span
+                          className={`bl-mono text-sm tabular-nums transition-colors duration-300 ${
+                            open ? 'text-[var(--sheet-ink)]' : 'text-[#9a9a96]'
+                          }`}
+                        >
+                          {s.n}
+                        </span>
+                      </span>
 
-                <div className="px-4 pb-5 pt-2 md:px-7 md:py-7">
-                  <h3 className="text-lg font-bold leading-snug tracking-[-0.025em] text-balance text-[var(--sheet-ink)] md:text-xl">
-                    {s.title}
-                  </h3>
-                  <p className="mt-2.5 max-w-md text-[0.9375rem] leading-relaxed text-[#6b6b68]">
-                    {s.body}
-                  </p>
-                </div>
+                      <span className="block px-4 pb-5 pt-2 md:px-7 md:py-7">
+                        <span
+                          className={`block text-lg font-bold leading-snug tracking-[-0.025em] text-balance transition-colors duration-300 md:text-xl ${
+                            open ? 'text-[var(--sheet-ink)]' : 'text-[#6b6b68]'
+                          }`}
+                        >
+                          {s.title}
+                        </span>
 
-                <div className="px-4 pb-6 md:border-l md:border-[var(--sheet-rule)] md:px-6 md:py-7">
-                  <div className="border border-[var(--sheet-rule)] bg-[var(--sheet-open)] px-3 py-2.5">
-                    <p className="bl-mono m-0 text-[0.5625rem] uppercase leading-[1.5] tracking-[0.16em] text-[#9a9a96]">
-                      {s.label}
-                    </p>
-                    <p className="bl-mono m-0 mt-1.5 text-xs leading-[1.5] text-[var(--sheet-ink)]">
-                      {s.value}
-                    </p>
-                  </div>
-                </div>
-              </motion.li>
-            ))}
-          </motion.ol>
+                        <AnimatePresence initial={false}>
+                          {open && (
+                            <motion.span
+                              id={panelId}
+                              className="block overflow-hidden"
+                              initial={reduced ? false : { height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={reduced ? undefined : { height: 0, opacity: 0 }}
+                              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                            >
+                              <span className="mt-2.5 block max-w-md text-[0.9375rem] leading-relaxed text-[#6b6b68]">
+                                {s.body}
+                              </span>
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </span>
+
+                      <span className="block px-4 pb-6 md:border-l md:border-[var(--sheet-rule)] md:px-6 md:py-7">
+                        <span
+                          className={`block border px-3 py-2.5 transition-colors duration-300 ${
+                            open
+                              ? 'border-[var(--sheet-rule)] bg-[var(--sheet-open)]'
+                              : 'border-[var(--sheet-rule-soft)] bg-white'
+                          }`}
+                        >
+                          <span
+                            className={`bl-mono block text-[0.5625rem] uppercase leading-[1.5] tracking-[0.16em] transition-colors duration-300 ${
+                              open ? 'text-[#9a9a96]' : 'text-[#c4c4bf]'
+                            }`}
+                          >
+                            {s.label}
+                          </span>
+                          <span
+                            className={`bl-mono mt-1.5 block text-xs leading-[1.5] transition-colors duration-300 ${
+                              open ? 'text-[var(--sheet-ink)]' : 'text-[#9a9a96]'
+                            }`}
+                          >
+                            {s.value}
+                          </span>
+                        </span>
+                      </span>
+                    </button>
+
+                    {/*
+                      The dwell, drawn. It is the clearest signal that the
+                      procedure is running rather than sitting still — and it
+                      visibly stops when the block is held.
+                    */}
+                    {!reduced && i === active && (
+                      <span
+                        ref={barRef}
+                        className="absolute bottom-0 left-0 h-px w-0 bg-[var(--sheet-ink)]"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
         </div>
       </div>
     </section>
