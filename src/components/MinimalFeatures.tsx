@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { X } from 'lucide-react';
 import { THRESHOLD_DAYS } from '../data/botlaneData';
+import { InventoryFigure } from './MicroFigures';
 
 /**
  * What arrives in your inbox — three deliverables, drawn as an inventory on
@@ -14,6 +15,7 @@ import { THRESHOLD_DAYS } from '../data/botlaneData';
 const ITEMS = [
   {
     n: '01',
+    figure: 'scope' as const,
     span: 'md:col-span-2',
     title: 'Tell me your target market',
     body: 'Cloud ecosystem (AWS, GCP, Azure), specific regions, company size, and the profile of the client you actually want.',
@@ -22,6 +24,7 @@ const ITEMS = [
   },
   {
     n: '02',
+    figure: 'signals' as const,
     span: 'md:col-span-1',
     title: 'Forty companies with stalled infrastructure hires',
     body: 'Each one carrying a public, dated hiring signal you can point at in the first line of an email.',
@@ -30,6 +33,7 @@ const ITEMS = [
   },
   {
     n: '03',
+    figure: 'ownership' as const,
     span: 'md:col-span-3',
     wide: true,
     title: 'You keep the research whether we work together or not',
@@ -139,7 +143,7 @@ export const MinimalFeatures: React.FC = () => {
 
             <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-[var(--sheet-rule)] px-4 py-3 md:px-7">
               <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
-                Deliverables — what arrives
+                Fig. 02 — deliverables
               </span>
               <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
                 Three items
@@ -186,7 +190,15 @@ export const MinimalFeatures: React.FC = () => {
                     </div>
 
                     <div className={item.wide ? 'mt-6 md:mt-0 md:w-[18rem]' : 'mt-6'}>
-                      <Reading label={item.label} values={item.values} />
+                      {/* Every deliverable gets its own drawing, so the figures
+                          are spread through the sheet rather than pooled in one
+                          rotating panel. */}
+                      <div className="border border-[var(--sheet-rule)] bg-[#fcfcfb] px-3 py-3">
+                        <InventoryFigure kind={item.figure} />
+                      </div>
+                      <div className="mt-2">
+                        <Reading label={item.label} values={item.values} />
+                      </div>
                     </div>
                   </div>
                 </motion.article>

@@ -110,6 +110,10 @@ export const BotlaneLogo: React.FC<BotlaneLogoProps> = ({
       viewBox="140 160 680 660"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      /* The wordmark sits beside this everywhere it is used, so the mark
+         itself is decorative and should not announce as an unlabelled graphic. */
+      aria-hidden="true"
+      focusable="false"
       className={`shrink-0 select-none overflow-visible inline-block align-middle ${className}`}
       variants={containerVariants}
       initial={animateOnLoad ? 'hidden' : 'visible'}

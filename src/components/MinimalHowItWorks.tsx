@@ -147,7 +147,7 @@ export const MinimalHowItWorks: React.FC = () => {
 
             <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-[var(--sheet-rule)] px-4 py-3 md:px-7">
               <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
-                Procedure — four steps
+                Fig. 03 — procedure, four steps
               </span>
               <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
                 {reduced ? 'Built once, then it runs' : paused ? 'Held' : 'Running'}

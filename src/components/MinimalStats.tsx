@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, useInView, useMotionValue, useSpring, useReducedMotion } from 'motion/react';
+import { ScheduleFigure } from './MicroFigures';
 
 interface AnimatedCounterProps {
   value: number;
@@ -55,17 +56,20 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
 const SPEC = [
   {
     key: 'Consultancies, maximum',
+    figure: 'lanes' as const,
     value: 4,
     note: 'The roster is capped so no two clients ever chase the same opening',
   },
   {
     key: 'Warm-up before first send',
+    figure: 'warmup' as const,
     value: 3,
     suffix: 'wk',
     note: 'Dedicated domains authenticated and aged before a single message goes out',
   },
   {
     key: 'Minimum signal age',
+    figure: 'threshold' as const,
     value: 60,
     prefix: '>',
     suffix: 'd',
@@ -73,6 +77,7 @@ const SPEC = [
   },
   {
     key: 'Emails from your domain',
+    figure: 'isolation' as const,
     value: 0,
     note: 'Outreach only ever leaves isolated secondary domains',
   },
@@ -150,6 +155,11 @@ export const MinimalStats: React.FC = () => {
                   <p className="mt-3 max-w-[34ch] text-sm leading-relaxed text-[#6b6b68]">
                     {s.note}
                   </p>
+                  {/* The constraint restated as a drawing, so the cell reads
+                      as measured rather than merely typed. */}
+                  <div className="mt-5">
+                    <ScheduleFigure kind={s.figure} />
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
