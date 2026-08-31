@@ -29,10 +29,14 @@ const COLUMNS: { heading: string; links: FooterLink[] }[] = [
   {
     heading: 'Solutions',
     links: [
-      { label: 'DevOps agencies' },
-      { label: 'Cloud consultancies' },
-      { label: 'Independent experts' },
-      { label: 'Partner programme' },
+      /* Terse on purpose. The column is 146px at every viewport, and the
+         longer forms of these measured 149-170px, so each one wrapped. The
+         heading already says Solutions, which carries the sense the extra
+         words were doing. */
+      { label: 'Agencies' },
+      { label: 'Cloud teams' },
+      { label: 'Independents' },
+      { label: 'Partners' },
     ],
   },
   {
