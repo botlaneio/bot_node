@@ -159,7 +159,7 @@ export const MinimalHowItWorks: React.FC = () => {
             <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,25rem)]">
               <ol className="m-0 border-b border-[var(--sheet-rule)] lg:border-b-0 lg:border-r">
                 {STEPS.map((s, i) => {
-                  const open = reduced || i === active;
+                  const open = i === active;
                   const panelId = `step-panel-${s.n}`;
                   return (
                     <li
@@ -171,12 +171,14 @@ export const MinimalHowItWorks: React.FC = () => {
                         onClick={() => select(i)}
                         aria-expanded={open}
                         aria-controls={panelId}
-                        className="grid w-full cursor-pointer grid-cols-[3.5rem_minmax(0,1fr)] text-left"
+                        className="group grid w-full cursor-pointer grid-cols-[3.5rem_minmax(0,1fr)] text-left"
                       >
                         <span className="flex items-start justify-center border-r border-[var(--sheet-rule)] py-5 md:py-6">
                           <span
                             className={`bl-mono text-sm tabular-nums transition-colors duration-300 ${
-                              open ? 'text-[var(--sheet-ink)]' : 'text-[#9a9a96]'
+                              open
+                                ? 'text-[var(--sheet-ink)]'
+                                : 'text-[#9a9a96] group-hover:text-[var(--sheet-accent)]'
                             }`}
                           >
                             {s.n}
@@ -186,7 +188,9 @@ export const MinimalHowItWorks: React.FC = () => {
                         <span className="block px-4 py-5 md:px-6 md:py-6">
                           <span
                             className={`block text-lg font-bold leading-snug tracking-[-0.025em] text-balance transition-colors duration-300 ${
-                              open ? 'text-[var(--sheet-ink)]' : 'text-[#6b6b68]'
+                              open
+                                ? 'text-[var(--sheet-ink)]'
+                                : 'text-[#6b6b68] group-hover:text-[var(--sheet-accent)]'
                             }`}
                           >
                             {s.title}
@@ -216,10 +220,27 @@ export const MinimalHowItWorks: React.FC = () => {
                         procedure is running rather than sitting still — and it
                         visibly stops when the block is held.
                       */}
+                      {/*
+                        Selection is an interaction state, so it takes the
+                        accent. The step is not "past the threshold" — it is
+                        simply the one you are on, and the one you can move.
+                      */}
+                      {open && (
+                        <span
+                          className="absolute inset-y-0 left-0 w-[2px] bg-[var(--sheet-accent)]"
+                          aria-hidden="true"
+                        />
+                      )}
+
+                      {/*
+                        The dwell, drawn. Accent rather than ink: this is a
+                        timer and a control, and black on this sheet means a
+                        threshold has been passed, which a dwell never does.
+                      */}
                       {!reduced && i === active && (
                         <span
                           ref={barRef}
-                          className="absolute bottom-0 left-0 h-px w-0 bg-[var(--sheet-ink)]"
+                          className="absolute bottom-0 left-0 h-[2px] w-0 bg-[var(--sheet-accent)]"
                           aria-hidden="true"
                         />
                       )}
