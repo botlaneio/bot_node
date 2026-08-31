@@ -1,152 +1,152 @@
 import React from 'react';
-import { motion } from 'motion/react';
-import { Target, Server, Send, Inbox, ShieldCheck } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
+import { THRESHOLD_DAYS } from '../data/botlaneData';
+
+/**
+ * Four steps, in order. Unlike the specification schedule, these genuinely are
+ * a sequence, so the numbers carry information rather than decorating the rows.
+ *
+ * Each step's label and value are the drafting equivalent of the old
+ * illustration panel: a labelled reading, stated rather than dressed up.
+ */
+const STEPS = [
+  {
+    n: '01',
+    title: 'We agree the target',
+    body: 'Cloud ecosystems, target regions, company size, minimum deal values, and your strict exclusion list.',
+    label: 'Target criteria',
+    value: 'DevOps · AWS / K8s · Series A–C',
+  },
+  {
+    n: '02',
+    title: 'I build the sending infrastructure',
+    body: 'A separate authenticated domain is registered, warmed for 3 weeks, and kept completely isolated from your primary corporate domain.',
+    label: 'SPF · DKIM · DMARC',
+    value: 'Separate secondary MX, warmed',
+  },
+  {
+    n: '03',
+    title: 'The system runs weekly',
+    body: `Newly stalled infrastructure roles (${THRESHOLD_DAYS}+ days) are identified, verified, and the VP of Engineering or CTO is contacted with context.`,
+    label: 'Weekly radar',
+    value: '40 stalled roles scraped',
+  },
+  {
+    n: '04',
+    title: 'Replies come to you',
+    body: 'Interested engineering leaders and positive replies are forwarded directly to your primary inbox within minutes for call booking.',
+    label: 'Inbound response',
+    value: '“Let’s talk Thursday at 2pm”',
+  },
+];
 
 export const MinimalHowItWorks: React.FC = () => {
+  const reduced = useReducedMotion() ?? false;
+
+  const container = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.09, delayChildren: 0.04 } },
+  };
+
+  // No animation props under reduced motion, so each row renders in place
+  // rather than depending on an animation to become visible.
+  const row = reduced
+    ? {}
+    : {
+        hidden: { opacity: 0, y: 12 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] as const },
+        },
+      };
+
   return (
-    <section id="how-it-works" className="scroll-mt-24 py-16 md:py-24 border-b border-[#e3e3e0]">
-      <div className="max-w-[1240px] mx-auto px-6 md:px-12">
-        {/* Section Header */}
-        <div className="flex flex-col gap-6">
-          <span className="eyebrow inline-flex w-fit items-center gap-2 rounded-[var(--radius-control)] border px-3 py-1.5 border-[#e3e3e0] bg-white text-[#6b6b68]">
-            <span className="size-1.5 rounded-full bg-[#0d0d0d]"></span>
-            How it works
-          </span>
+    <section
+      id="how-it-works"
+      className="bl-display relative scroll-mt-24 bg-[var(--sheet-page)]"
+    >
+      <div className="bl-sheet relative mx-auto max-w-[1240px] bg-[var(--sheet-column)]">
+        <div className="relative px-6 py-14 md:px-12 md:py-16">
+          <span className="bl-x" style={{ left: -6, bottom: -6 }} aria-hidden="true" />
+          <span className="bl-x" style={{ right: -6, bottom: -6 }} aria-hidden="true" />
+
+          {/* ---------------- section header ---------------- */}
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between md:gap-16">
-            <h2 className="max-w-2xl text-3xl font-medium tracking-[-0.02em] text-balance sm:text-4xl md:text-[2.75rem] md:leading-[1.08] text-[#0d0d0d]">
-              Four steps. Then replies land in your inbox.
-            </h2>
+            <div>
+              <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
+                How it works
+              </span>
+              <h2 className="mt-4 max-w-[18ch] text-3xl font-bold leading-[1.06] tracking-[-0.04em] text-balance text-[var(--sheet-ink)] sm:text-4xl md:text-[2.75rem]">
+                Four steps.{' '}
+                <span className="text-[var(--sheet-grey)]">Then replies land in your inbox.</span>
+              </h2>
+            </div>
             <p className="max-w-md text-[0.9375rem] leading-relaxed text-[#6b6b68]">
               No complex dashboards to learn, no SDR seats to hire. The system is built, then it runs.
             </p>
           </div>
-        </div>
 
-        {/* 4 Step Ordered List */}
-        <ol className="mt-12 flex flex-col gap-4">
-          {/* Step 01 */}
-          <li className="grid items-center gap-6 overflow-hidden rounded-[var(--radius-panel)] border border-[#e3e3e0] bg-white p-5 md:grid-cols-2 md:gap-12 md:p-7">
-            <div
-              role="img"
-              aria-label="Step 1 render"
-              className="relative flex items-center justify-center overflow-hidden rounded-[var(--radius-card)] border border-[#e3e3e0] bg-[#ebebe8] h-48 w-full md:h-56 p-4"
-            >
-              <svg aria-hidden="true" viewBox="0 0 200 200" className="absolute inset-0 h-full w-full text-black/[0.05]">
-                <circle cx="100" cy="100" r="28" fill="none" stroke="currentColor" strokeWidth="1" />
-                <circle cx="100" cy="100" r="48" fill="none" stroke="currentColor" strokeWidth="1" />
-                <circle cx="100" cy="100" r="68" fill="none" stroke="currentColor" strokeWidth="1" />
-              </svg>
-              <div className="relative z-10 p-3.5 rounded-xl bg-white border border-[#e3e3e0] shadow-xs text-xs font-mono">
-                <span className="text-zinc-500 block text-[10px]">TARGET CRITERIA</span>
-                <span className="font-semibold text-zinc-900 block mt-0.5">DevOps · AWS / K8s · Series A-C</span>
-              </div>
-            </div>
-            <div className="md:px-4">
-              <span className="eyebrow inline-flex items-center gap-2 rounded-[var(--radius-control)] border border-[#e3e3e0] px-2.5 py-1 text-[#9a9a96]">
-                Step 01
+          {/* ---------------- the procedure ---------------- */}
+          <motion.ol
+            className="relative mt-10 border border-[var(--sheet-rule)] bg-white"
+            variants={container}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+          >
+            <span className="bl-x" style={{ left: -6, top: -6 }} aria-hidden="true" />
+            <span className="bl-x" style={{ right: -6, top: -6 }} aria-hidden="true" />
+            <span className="bl-x" style={{ left: -6, bottom: -6 }} aria-hidden="true" />
+            <span className="bl-x" style={{ right: -6, bottom: -6 }} aria-hidden="true" />
+
+            <li className="flex flex-wrap items-baseline justify-between gap-4 border-b border-[var(--sheet-rule)] px-4 py-3 md:px-7">
+              <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
+                Procedure — four steps
               </span>
-              <h3 className="mt-4 text-xl leading-snug font-medium tracking-[-0.015em] text-balance md:text-2xl text-[#0d0d0d]">
-                We agree the target
-              </h3>
-              <p className="mt-3 max-w-md text-[0.9375rem] leading-relaxed text-[#6b6b68]">
-                Cloud ecosystems, target regions, company size, minimum deal values, and your strict exclusion list.
-              </p>
-            </div>
-          </li>
+              <span className="bl-mono text-[0.625rem] uppercase tracking-[0.16em] text-[#9a9a96]">
+                Built once, then it runs
+              </span>
+            </li>
 
-          {/* Step 02 */}
-          <li className="grid items-center gap-6 overflow-hidden rounded-[var(--radius-panel)] border border-[#e3e3e0] bg-white p-5 md:grid-cols-2 md:gap-12 md:p-7">
-            <div
-              role="img"
-              aria-label="Step 2 render"
-              className="relative flex items-center justify-center overflow-hidden rounded-[var(--radius-card)] border border-[#e3e3e0] bg-[#ebebe8] h-48 w-full md:h-56 md:order-2 p-4"
-            >
-              <svg aria-hidden="true" viewBox="0 0 200 200" className="absolute inset-0 h-full w-full text-black/[0.05]">
-                <circle cx="100" cy="100" r="28" fill="none" stroke="currentColor" strokeWidth="1" />
-                <circle cx="100" cy="100" r="48" fill="none" stroke="currentColor" strokeWidth="1" />
-                <circle cx="100" cy="100" r="68" fill="none" stroke="currentColor" strokeWidth="1" />
-              </svg>
-              <div className="relative z-10 p-3.5 rounded-xl bg-white border border-[#e3e3e0] shadow-xs text-xs font-mono space-y-1">
-                <div className="flex items-center gap-1 text-[var(--color-ink)] font-semibold text-[10px]">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>SPF · DKIM · DMARC VALIDATED</span>
+            {STEPS.map((s) => (
+              <motion.li
+                key={s.n}
+                variants={row}
+                /*
+                  Padding sits on the cells rather than the row, so the number
+                  column's rule runs the full height and reads as one continuous
+                  spine down the block.
+                */
+                className="grid border-b border-[var(--sheet-rule)] last:border-b-0 md:grid-cols-[5rem_minmax(0,1fr)_minmax(0,18rem)]"
+              >
+                <div className="flex items-start px-4 pt-5 md:justify-center md:border-r md:border-[var(--sheet-rule)] md:px-0 md:py-7">
+                  <span className="bl-mono text-sm tabular-nums text-[#9a9a96]">{s.n}</span>
                 </div>
-                <span className="text-zinc-600 block text-[11px]">Separate Secondary MX Warmed</span>
-              </div>
-            </div>
-            <div className="md:px-4 md:order-1">
-              <span className="eyebrow inline-flex items-center gap-2 rounded-[var(--radius-control)] border border-[#e3e3e0] px-2.5 py-1 text-[#9a9a96]">
-                Step 02
-              </span>
-              <h3 className="mt-4 text-xl leading-snug font-medium tracking-[-0.015em] text-balance md:text-2xl text-[#0d0d0d]">
-                I build the sending infrastructure
-              </h3>
-              <p className="mt-3 max-w-md text-[0.9375rem] leading-relaxed text-[#6b6b68]">
-                A separate authenticated domain is registered, warmed for 3 weeks, and kept completely isolated from your primary corporate domain.
-              </p>
-            </div>
-          </li>
 
-          {/* Step 03 */}
-          <li className="grid items-center gap-6 overflow-hidden rounded-[var(--radius-panel)] border border-[#e3e3e0] bg-white p-5 md:grid-cols-2 md:gap-12 md:p-7">
-            <div
-              role="img"
-              aria-label="Step 3 render"
-              className="relative flex items-center justify-center overflow-hidden rounded-[var(--radius-card)] border border-[#e3e3e0] bg-[#ebebe8] h-48 w-full md:h-56 p-4"
-            >
-              <svg aria-hidden="true" viewBox="0 0 200 200" className="absolute inset-0 h-full w-full text-black/[0.05]">
-                <circle cx="100" cy="100" r="28" fill="none" stroke="currentColor" strokeWidth="1" />
-                <circle cx="100" cy="100" r="48" fill="none" stroke="currentColor" strokeWidth="1" />
-                <circle cx="100" cy="100" r="68" fill="none" stroke="currentColor" strokeWidth="1" />
-              </svg>
-              <div className="relative z-10 p-3.5 rounded-xl bg-white border border-[#e3e3e0] shadow-xs text-xs font-mono">
-                <span className="text-zinc-500 block text-[10px]">WEEKLY RADAR</span>
-                <span className="font-semibold text-zinc-900 block mt-0.5">40 Stalled Roles Scraped</span>
-              </div>
-            </div>
-            <div className="md:px-4">
-              <span className="eyebrow inline-flex items-center gap-2 rounded-[var(--radius-control)] border border-[#e3e3e0] px-2.5 py-1 text-[#9a9a96]">
-                Step 03
-              </span>
-              <h3 className="mt-4 text-xl leading-snug font-medium tracking-[-0.015em] text-balance md:text-2xl text-[#0d0d0d]">
-                The system runs weekly
-              </h3>
-              <p className="mt-3 max-w-md text-[0.9375rem] leading-relaxed text-[#6b6b68]">
-                Newly stalled infrastructure roles (60+ days) are identified, verified, and the VP of Engineering or CTO is contacted with context.
-              </p>
-            </div>
-          </li>
+                <div className="px-4 pb-5 pt-2 md:px-7 md:py-7">
+                  <h3 className="text-lg font-bold leading-snug tracking-[-0.025em] text-balance text-[var(--sheet-ink)] md:text-xl">
+                    {s.title}
+                  </h3>
+                  <p className="mt-2.5 max-w-md text-[0.9375rem] leading-relaxed text-[#6b6b68]">
+                    {s.body}
+                  </p>
+                </div>
 
-          {/* Step 04 */}
-          <li className="grid items-center gap-6 overflow-hidden rounded-[var(--radius-panel)] border border-[#e3e3e0] bg-white p-5 md:grid-cols-2 md:gap-12 md:p-7">
-            <div
-              role="img"
-              aria-label="Step 4 render"
-              className="relative flex items-center justify-center overflow-hidden rounded-[var(--radius-card)] border border-[#e3e3e0] bg-[#ebebe8] h-48 w-full md:h-56 md:order-2 p-4"
-            >
-              <svg aria-hidden="true" viewBox="0 0 200 200" className="absolute inset-0 h-full w-full text-black/[0.05]">
-                <circle cx="100" cy="100" r="28" fill="none" stroke="currentColor" strokeWidth="1" />
-                <circle cx="100" cy="100" r="48" fill="none" stroke="currentColor" strokeWidth="1" />
-                <circle cx="100" cy="100" r="68" fill="none" stroke="currentColor" strokeWidth="1" />
-              </svg>
-              <div className="relative z-10 p-3.5 rounded-xl bg-white border border-[#e3e3e0] shadow-xs text-xs font-mono">
-                <span className="text-[var(--color-ink)] block text-[10px] font-bold">● INBOUND RESPONSE</span>
-                <span className="font-semibold text-zinc-900 block mt-0.5">"Let's talk Thursday at 2pm"</span>
-              </div>
-            </div>
-            <div className="md:px-4 md:order-1">
-              <span className="eyebrow inline-flex items-center gap-2 rounded-[var(--radius-control)] border border-[#e3e3e0] px-2.5 py-1 text-[#9a9a96]">
-                Step 04
-              </span>
-              <h3 className="mt-4 text-xl leading-snug font-medium tracking-[-0.015em] text-balance md:text-2xl text-[#0d0d0d]">
-                Replies come to you
-              </h3>
-              <p className="mt-3 max-w-md text-[0.9375rem] leading-relaxed text-[#6b6b68]">
-                Interested engineering leaders and positive replies are forwarded directly to your primary inbox within minutes for call booking.
-              </p>
-            </div>
-          </li>
-        </ol>
+                <div className="px-4 pb-6 md:border-l md:border-[var(--sheet-rule)] md:px-6 md:py-7">
+                  <div className="border border-[var(--sheet-rule)] bg-[var(--sheet-open)] px-3 py-2.5">
+                    <p className="bl-mono m-0 text-[0.5625rem] uppercase leading-[1.5] tracking-[0.16em] text-[#9a9a96]">
+                      {s.label}
+                    </p>
+                    <p className="bl-mono m-0 mt-1.5 text-xs leading-[1.5] text-[var(--sheet-ink)]">
+                      {s.value}
+                    </p>
+                  </div>
+                </div>
+              </motion.li>
+            ))}
+          </motion.ol>
+        </div>
       </div>
     </section>
   );
