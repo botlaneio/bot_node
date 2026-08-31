@@ -59,18 +59,33 @@ export const MinimalFaq: React.FC = () => {
                 return (
                   <div
                     key={faq.question}
-                    className="border-b border-[var(--sheet-rule)] last:border-b-0"
+                    className="relative border-b border-[var(--sheet-rule)] last:border-b-0"
                   >
+                    {/* Marks the open entry, question and answer together. Same
+                        rule as the procedure: selection is an interaction
+                        state, so it takes the accent rather than ink. */}
+                    {isOpen && (
+                      <span
+                        className="absolute inset-y-0 left-0 w-[2px] bg-[var(--sheet-accent)]"
+                        aria-hidden="true"
+                      />
+                    )}
                     <dt className="m-0">
                       <button
                         type="button"
                         onClick={() => toggle(idx)}
                         aria-expanded={isOpen}
                         aria-controls={id}
-                        className="flex w-full cursor-pointer items-center justify-between gap-6 px-4 py-4 text-left transition-colors hover:bg-[#fcfcfb] md:px-7 md:py-5"
+                        className="group flex w-full cursor-pointer items-center justify-between gap-6 px-4 py-4 text-left transition-colors hover:bg-[var(--sheet-column)] md:px-7 md:py-5"
                       >
                         <span className="flex items-baseline gap-4">
-                          <span className="bl-mono shrink-0 text-[0.625rem] tabular-nums tracking-[0.16em] text-[#9a9a96]">
+                          <span
+                            className={`bl-mono shrink-0 text-[0.625rem] tabular-nums tracking-[0.16em] transition-colors ${
+                              isOpen
+                                ? 'text-[var(--sheet-ink)]'
+                                : 'text-[#9a9a96] group-hover:text-[var(--sheet-accent)]'
+                            }`}
+                          >
                             {String(idx + 1).padStart(2, '0')}
                           </span>
                           <span className="text-[0.9375rem] font-semibold tracking-[-0.015em] text-[var(--sheet-ink)]">
@@ -79,7 +94,11 @@ export const MinimalFaq: React.FC = () => {
                         </span>
                         {/* A drawn plus/minus rather than a rotating icon. */}
                         <span
-                          className="bl-mono shrink-0 text-sm leading-none text-[#9a9a96]"
+                          className={`bl-mono shrink-0 text-sm leading-none transition-colors ${
+                            isOpen
+                              ? 'text-[var(--sheet-accent)]'
+                              : 'text-[#9a9a96] group-hover:text-[var(--sheet-accent)]'
+                          }`}
                           aria-hidden="true"
                         >
                           {isOpen ? '−' : '+'}

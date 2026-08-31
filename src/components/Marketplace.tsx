@@ -231,7 +231,7 @@ export default function Marketplace({ onOpenBooking }: MarketplaceProps) {
                       className={`bl-mono shrink-0 border px-3 py-2 text-[0.625rem] whitespace-nowrap uppercase tracking-[0.12em] transition-colors ${
                         active
                           ? 'border-[var(--sheet-accent)] bg-[var(--sheet-accent)] text-[#fafafa]'
-                          : 'border-[var(--sheet-rule)] bg-white text-[#6b6b68] hover:border-[var(--sheet-accent)] hover:text-[var(--sheet-accent)] hover:text-[var(--sheet-ink)]'
+                          : 'border-[var(--sheet-rule)] bg-white text-[#6b6b68] hover:border-[var(--sheet-accent)] hover:text-[var(--sheet-accent)]'
                       }`}
                     >
                       {cat}

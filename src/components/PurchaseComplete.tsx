@@ -28,7 +28,7 @@ export const PurchaseComplete: React.FC = () => {
         <p className="mt-3 text-[#6b6b68]">This page appears after a completed purchase.</p>
         <Link
           to="/systems"
-          className="mt-8 inline-flex h-11 items-center justify-center rounded-lg bg-[var(--sheet-ink)] px-5 text-sm font-medium text-white"
+          className="mt-8 inline-flex h-11 items-center justify-center rounded-lg bg-[var(--sheet-accent)] px-5 text-sm font-medium text-[#fafafa] transition-colors hover:bg-[var(--sheet-accent-hover)]"
         >
           Browse the systems
         </Link>
@@ -82,13 +82,13 @@ export const PurchaseComplete: React.FC = () => {
         <div className="mt-8 flex flex-col sm:flex-row gap-3">
           <Link
             to="/systems"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[var(--sheet-ink)] px-5 text-sm font-medium text-white transition-colors hover:bg-[#242424]"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[var(--sheet-accent)] px-5 text-sm font-medium text-[#fafafa] transition-colors hover:bg-[var(--sheet-accent-hover)]"
           >
             Browse more systems <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             to="/"
-            className="inline-flex h-11 items-center justify-center rounded-lg border border-[var(--sheet-rule)] px-5 text-sm font-medium text-[var(--sheet-ink)] transition-colors hover:bg-[var(--sheet-open)]"
+            className="inline-flex h-11 items-center justify-center rounded-lg border border-[var(--sheet-rule)] bg-white px-5 text-sm font-medium text-[var(--sheet-ink)] transition-colors hover:border-[var(--sheet-accent)] hover:text-[var(--sheet-accent)]"
           >
             Back to the homepage
           </Link>

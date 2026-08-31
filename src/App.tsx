@@ -234,7 +234,7 @@ export default function App() {
   if (loading) return <SkeletonLoader />;
 
   return (
-    <div className="min-h-screen text-[#0d0d0d] selection:bg-[#0a0a0a] selection:text-white">
+    <div className="min-h-screen text-[#0d0d0d]">
       <ScrollManager />
       <ProgressBar />
       <MinimalNavbar onOpenBooking={openBooking} />

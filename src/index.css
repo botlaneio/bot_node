@@ -62,7 +62,7 @@
   */
   --sheet-accent: #1b4d8f;
   --sheet-accent-hover: #163f75;
-  --sheet-accent-tint: #eef3fa;
+  --sheet-accent-tint: #d6e3f4;
 }
 
 .bl-display {
@@ -392,6 +392,28 @@
 }
 
 .card-link:focus-visible::after {
-  outline: 2px solid var(--color-ink);
+  outline: 2px solid var(--sheet-accent);
   outline-offset: 2px;
+}
+
+/*
+  Focus is the third thing hue is for, alongside buttons and links, and until
+  now it was whatever ring the browser happened to draw — an uncontrolled hue
+  on a page whose whole premise is that hue means something. Zero specificity,
+  so a field that manages its own focus (border-accent, outline-none) still
+  wins.
+*/
+:where(a, button, [role='button'], summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--sheet-accent);
+  outline-offset: 2px;
+}
+
+/*
+  Selecting text is something you did, so it earns hue — but as the tint, not
+  the full accent. A saturated block behind a dragged paragraph would shout
+  louder than any button on the sheet.
+*/
+::selection {
+  background: var(--sheet-accent-tint);
+  color: var(--sheet-ink);
 }
